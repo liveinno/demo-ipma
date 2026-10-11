@@ -38,10 +38,12 @@ EMBED_STYLE = """<style>
     #srchin{width:100%}
     #sres{top:112px;max-height:55vh}
     #struct{top:174px;left:8px;bottom:8px;width:calc(100% - 16px)}
+    #panel{top:174px;max-height:calc(100dvh - 240px)}
     #recallbar{top:174px}
     #tutor{padding:12px}
     #tutor .card{padding:20px;max-height:calc(100dvh - 24px)}
   }
+  @media(max-width:760px){#panel{top:auto;max-height:56dvh}}
 </style>"""
 
 
