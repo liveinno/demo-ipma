@@ -1,0 +1,2199 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Вселенная ICB 4.0 — все 28 элементов компетентности</title>
+<style>
+:root{
+  --bg:#070d18; --bg2:#0b1424; --surface:#101b2e; --surface2:#16233a;
+  --fg:#e8eef4; --muted:#93a7b8; --faint:#5c7186;
+  --line:#22344e; --line2:#31486a;
+  --ctx:#2dd4bf; --ppl:#a78bfa; --prc:#fbbf24; --prj:#7fe3a0;
+  --ok:#34d399; --bad:#f87171; --warn:#fbbf24;
+  --disp:"Iowan Old Style","Charter",Georgia,"Times New Roman",serif;
+  --body:"Segoe UI",-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Cascadia Mono",Consolas,"SF Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+#gl{position:fixed;inset:0;display:block;touch-action:none;cursor:grab}
+#gl.dragging{cursor:grabbing}
+#gl.panning{cursor:move}
+#labels{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+.lbl{position:absolute;transform:translate(-50%,-120%);pointer-events:auto;cursor:pointer;
+  font-family:var(--mono);font-size:var(--lfs,11px);letter-spacing:.04em;color:var(--fg);
+  background:rgba(10,18,32,.82);border:1px solid var(--line);border-radius:4px;
+  padding:3px 8px;white-space:nowrap;backdrop-filter:blur(4px);transition:opacity .25s}
+.lbl small{display:block;font-size:calc(var(--lfs,11px)*.82);color:var(--muted);letter-spacing:.06em}
+.lbl.ctx{border-color:rgba(45,212,191,.5)} .lbl.ppl{border-color:rgba(167,139,250,.5)} .lbl.prc{border-color:rgba(251,191,36,.5)}
+.lbl.prj{border-color:rgba(127,227,160,.55)} .lbl.csf{border-color:rgba(244,114,182,.6);color:#f9c4dd}
+.lbl.risk{border-color:rgba(248,113,113,.55)} .lbl.dim{opacity:.7}
+.lbl.cmpdim{opacity:.13}
+.lbl.ghost{opacity:.45;font-style:italic}
+.lbl.hot{border-color:var(--fg);background:rgba(24,36,60,.95)}
+.lbl.recall{color:var(--faint);font-style:italic}
+header{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:10px;
+  padding:10px 14px;background:linear-gradient(rgba(7,13,24,.92),rgba(7,13,24,.55) 80%,transparent)}
+.brandcol{display:flex;flex-direction:column;min-width:0;flex-shrink:0;max-width:min(46vw,560px)}
+.brand{font-family:var(--disp);font-size:17px;white-space:nowrap}
+.brand small{display:block;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
+#crumbs{display:flex;align-items:center;gap:1px;font-family:var(--mono);font-size:10px;
+  color:var(--faint);overflow:hidden;min-width:0;margin-top:3px}
+#crumbs button{background:none;border:none;border-radius:4px;color:var(--muted);font:inherit;
+  cursor:pointer;padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+#crumbs button:hover{color:var(--ctx);background:rgba(45,212,191,.08)}
+#crumbs button:focus-visible{outline:1.5px solid var(--ctx);outline-offset:1px}
+#crumbs .sep{color:var(--faint)} #crumbs .here{color:var(--fg)}
+#crumbs .prompt{color:var(--prj);margin-right:2px}
+.hbtns{display:flex;gap:6px;flex-shrink:0}
+button.act{font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--fg);
+  background:rgba(16,27,46,.85);border:1px solid var(--line2);border-radius:6px;
+  padding:9px 13px;cursor:pointer;min-height:36px;backdrop-filter:blur(4px)}
+button.act:hover{border-color:var(--fg);background:var(--surface2)}
+button.act.on{border-color:var(--warn);color:var(--warn)}
+button.act:focus-visible{outline:2px solid var(--ctx);outline-offset:2px}
+#fsctl{display:flex;align-items:center;gap:4px;flex-shrink:0}
+#fsctl .act{padding:9px 10px;min-width:36px}
+#fsval{font-family:var(--mono);font-size:10px;color:var(--muted);min-width:20px;text-align:center}
+#panel{position:fixed;top:64px;right:14px;bottom:14px;width:min(400px,92vw);z-index:15;
+  background:rgba(11,20,36,.94);border:1px solid var(--line);border-radius:12px;
+  padding:20px 20px 16px;overflow-y:auto;backdrop-filter:blur(10px);
+  transform:translateX(calc(100% + 20px));transition:transform .35s ease}
+#panel.open{transform:none}
+#panel h2{font-family:var(--disp);font-size:21px;line-height:1.25;margin:4px 0 10px}
+#panel .code{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em}
+#panel .code.ctx{color:var(--ctx)} #panel .code.ppl{color:var(--ppl)} #panel .code.prc{color:var(--prc)} #panel .code.prj{color:var(--prj)}
+#panel h3{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:16px 0 5px}
+#panel p,#panel li{font-size:13.5px;color:#cfdae4}
+#panel ul{padding-left:18px} #panel li{margin:3px 0}
+.badge{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  border-radius:3px;padding:2px 6px;margin-left:6px;vertical-align:1px}
+.badge.std{background:rgba(45,212,191,.14);color:var(--ctx);border:1px solid rgba(45,212,191,.35)}
+.badge.auth{background:rgba(251,191,36,.12);color:var(--warn);border:1px solid rgba(251,191,36,.3)}
+.badge.conf-a{background:rgba(52,211,153,.13);color:#34d399;border:1px solid rgba(52,211,153,.35)}
+.badge.conf-b{background:rgba(251,191,36,.12);color:var(--warn);border:1px solid rgba(251,191,36,.3)}
+.badge.conf-c{background:rgba(248,113,113,.12);color:var(--bad);border:1px solid rgba(248,113,113,.3)}
+.icbmap{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
+.icbchip{font-family:var(--mono);font-size:11px;background:var(--surface2);border:1px solid var(--line2);
+  color:var(--fg);border-radius:6px;padding:7px 9px;cursor:pointer;text-align:left;line-height:1.5}
+.icbchip:hover{border-color:var(--prj)} .icbchip:focus-visible{outline:2px solid var(--prj);outline-offset:2px}
+.icbchip .badge{margin-left:2px}
+.srcs code{display:inline-block;color:var(--faint);font-size:10px;word-break:break-all}
+#projbar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:14;display:none;
+  max-width:min(860px,96vw);background:rgba(11,20,36,.94);border:1px solid var(--line);
+  border-radius:12px;padding:10px 14px;backdrop-filter:blur(10px);font-size:12px;color:var(--muted)}
+#projbar.open{display:block}
+#projbar button{font-family:var(--mono);font-size:10.5px;background:var(--surface2);border:1px solid var(--line2);
+  color:var(--muted);border-radius:6px;padding:6px 9px;cursor:pointer;margin:3px 2px}
+#projbar button:hover{border-color:var(--fg);color:var(--fg)}
+#projbar button:focus-visible{outline:2px solid var(--prj);outline-offset:2px}
+#projbar button.on{border-color:var(--prj);color:#d9ffe8}
+#projbar .lgnd{display:block;margin-top:4px;font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+#projbar b{color:var(--fg);font-weight:400}
+.src{margin-top:16px;padding-top:10px;border-top:1px solid var(--line);font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.pbtn{display:block;width:100%;margin-top:14px;padding:12px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;
+  color:#0a1420;background:var(--ctx);border:none;border-radius:7px;cursor:pointer;font-weight:700}
+.pbtn:hover{filter:brightness(1.12)} .pbtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.pbtn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line2);font-weight:400}
+#pclose{position:absolute;top:10px;right:10px;background:none;border:1px solid var(--line);color:var(--muted);
+  border-radius:6px;width:34px;height:34px;font-size:15px;cursor:pointer}
+#pclose:hover{color:var(--fg);border-color:var(--fg)}
+#pexpand{position:absolute;top:10px;right:50px;background:none;border:1px solid var(--line);color:var(--muted);
+  border-radius:6px;width:34px;height:34px;font-size:13px;cursor:pointer;line-height:1}
+#pexpand:hover{color:var(--fg);border-color:var(--fg)}
+#pedge{position:absolute;left:-5px;top:0;bottom:0;width:11px;cursor:ew-resize;z-index:3;touch-action:none}
+#pedge::after{content:'';position:absolute;left:5px;top:50%;transform:translateY(-50%);width:3px;height:44px;
+  border-radius:2px;background:var(--line2);opacity:.45;transition:opacity .2s}
+#pedge:hover::after,#panel.resizing #pedge::after{opacity:1;background:var(--ctx)}
+#panel.resizing{transition:none;user-select:none}
+#panel.expanded{left:14px;width:auto!important}
+.pex{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.pex-r{border-radius:8px;padding:9px 11px;border:1px solid var(--line)}
+.pex-r b{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px}
+.pex-r p{margin:0;font-size:12.5px}
+.pex-r.ok{background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.3)}
+.pex-r.ok b{color:#34d399}
+.pex-r.bad{background:rgba(248,113,113,.06);border-color:rgba(248,113,113,.3)}
+.pex-r.bad b{color:#f87171}
+#scenebar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:14;display:none;
+  max-width:min(720px,94vw);background:rgba(11,20,36,.94);border:1px solid var(--line);
+  border-radius:12px;padding:12px 16px;backdrop-filter:blur(10px)}
+#scenebar.open{display:block}
+#scenebar .sit{font-size:13px;color:#cfdae4;margin-bottom:8px}
+#scenebar .sit b{color:var(--fg)}
+#scenebar .row{display:flex;gap:8px;flex-wrap:wrap}
+#scenebar button{flex:1;min-width:150px;font-family:var(--body);font-size:12.5px;text-align:left;
+  background:var(--surface2);border:1px solid var(--line2);color:var(--fg);border-radius:8px;
+  padding:10px 12px;cursor:pointer;min-height:44px}
+#scenebar button:hover{border-color:var(--fg)} #scenebar button:focus-visible{outline:2px solid var(--ctx);outline-offset:2px}
+#scenebar button:disabled{opacity:.45;cursor:default}
+#scenebar .out{font-size:12.5px;color:var(--muted);margin-top:8px;display:none}
+#scenebar .out.show{display:block}
+#scenebar .note{font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:6px}
+#legend{position:fixed;left:14px;bottom:14px;z-index:12;font-family:var(--mono);font-size:10px;color:var(--muted);
+  background:rgba(11,20,36,.88);border:1px solid var(--line);border-radius:8px;padding:9px 12px;line-height:1.9;backdrop-filter:blur(6px)}
+#legend .sw{display:inline-block;width:22px;height:0;border-top:2px solid var(--muted);vertical-align:middle;margin-right:7px}
+#legend .sw.solid{border-color:var(--muted)} #legend .sw.rel{border-top-style:dashed;border-color:var(--ppl)}
+#legend .sw.inf{border-top-style:dashed;border-color:var(--warn)}
+#legend .sw.use{border-color:#e8f6ff;border-top-width:3px}
+#legend .sw.kn{border-top-style:dashed;border-color:#67e8f9}
+#legend .sw.sk2{border-top-style:dashed;border-color:#9fd8ff}
+#legend b{color:var(--fg);font-weight:400}
+#keybtn{position:fixed;right:14px;bottom:14px;z-index:14;font-family:var(--mono);font-size:11px;color:var(--muted);
+  background:rgba(11,20,36,.88);border:1px solid var(--line2);border-radius:8px;padding:9px 14px;cursor:pointer;backdrop-filter:blur(6px)}
+#keybtn:hover{color:var(--fg);border-color:var(--fg)} #keybtn.on{color:var(--ctx);border-color:var(--ctx)}
+#keybtn:focus-visible{outline:2px solid var(--ctx);outline-offset:2px}
+#shapekey{position:fixed;right:14px;bottom:56px;z-index:14;width:min(330px,92vw);max-height:min(72vh,640px);overflow:auto;
+  display:none;background:rgba(11,20,36,.95);border:1px solid var(--line2);border-radius:12px;
+  padding:14px 16px;backdrop-filter:blur(10px);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+#shapekey.open{display:block}
+#shapekey h3{font-family:var(--mono);font-size:11px;color:var(--fg);font-weight:400;margin:0 0 4px}
+#shapekey h4{font-family:var(--mono);font-size:9.5px;color:var(--faint);font-weight:400;letter-spacing:.08em;
+  text-transform:uppercase;margin:14px 0 4px;border-top:1px solid var(--line);padding-top:10px}
+#shapekey h4:first-of-type{border-top:none;padding-top:0;margin-top:8px}
+.ski{display:flex;align-items:center;gap:10px;padding:4px 0;font-size:12px;color:#cfdae4}
+.ski svg{width:30px;height:30px;flex:none}
+.ski .d{display:block;font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:1px}
+#recallbar{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:16;display:none;
+  background:rgba(11,20,36,.94);border:1px solid var(--warn);border-radius:10px;
+  padding:10px 16px;font-size:13px;max-width:min(560px,92vw);text-align:center;backdrop-filter:blur(8px)}
+#recallbar.open{display:block}
+#recallbar .q b{color:var(--warn)}
+#recallbar .fb{font-family:var(--mono);font-size:11px;margin-top:4px}
+#recallbar .fb.ok{color:var(--ok)} #recallbar .fb.bad{color:var(--bad)}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:30;background:var(--surface2);
+  border:1px solid var(--line2);border-radius:8px;padding:9px 16px;font-size:12.5px;display:none}
+#tutor{position:fixed;inset:0;z-index:40;background:rgba(5,9,17,.86);display:none;align-items:center;justify-content:center;padding:20px}
+#tutor.open{display:flex}
+#tutor .card{background:var(--surface);border:1px solid var(--line2);border-radius:14px;max-width:520px;padding:28px}
+#tutor h2{font-family:var(--disp);font-size:24px;margin-bottom:6px}
+#tutor .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+#tutor ol{list-style:none;counter-reset:t}
+#tutor li{counter-increment:t;position:relative;margin:12px 0 12px 36px;font-size:13.5px;color:#cfdae4}
+#tutor li::before{content:counter(t);position:absolute;left:-36px;top:0;width:24px;height:24px;border-radius:50%;
+  border:1px solid var(--ctx);color:var(--ctx);font-family:var(--mono);font-size:11px;
+  display:flex;align-items:center;justify-content:center}
+#tutor .keys{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin:14px 0 18px;line-height:2}
+#tutor .keys b{color:var(--muted);border:1px solid var(--line2);border-radius:4px;padding:1px 6px;font-weight:400}
+#nogl{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px}
+#nogl.open{display:flex}
+#nogl .card{max-width:640px;background:var(--surface);border:1px solid var(--line2);border-radius:14px;padding:32px}
+#nogl h1{font-family:var(--disp);font-size:26px;margin-bottom:12px}
+#nogl p{color:var(--muted);font-size:14px;margin-bottom:10px}
+.term{border-bottom:1px dotted var(--muted);cursor:help}
+/* визуальный образ в карточке объекта */
+.viz{margin:4px 0 6px;border:1px solid var(--line);border-radius:10px;background:rgba(16,27,46,.55);padding:10px 10px 8px}
+.viz svg{display:block;width:100%;height:auto}
+.viz-t{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.viz-cap{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.45}
+.viz-cap b{color:var(--fg);font-weight:600}
+.viz-note{font-family:var(--mono);font-size:9.5px;color:var(--warn);margin-top:6px;line-height:1.5}
+.viz-note:empty{display:none}
+.viz-tgl{margin-top:8px;font-family:var(--mono);font-size:10px;color:var(--fg);background:var(--surface2);
+  border:1px solid var(--line2);border-radius:6px;padding:7px 12px;cursor:pointer;min-height:32px}
+.viz-tgl:hover{border-color:var(--fg)} .viz-tgl:focus-visible{outline:2px solid var(--ctx);outline-offset:2px}
+.viz [data-vn]{cursor:pointer}
+.viz [data-vn]:hover{filter:brightness(1.35)}
+.viz .vzb{opacity:0;transition:opacity .4s}
+.viz[data-st="b"] .vzb{opacity:1}
+.viz[data-st="b"] .vza{opacity:.22}
+.viz .vza{transition:opacity .4s}
+@keyframes vdash{to{stroke-dashoffset:-28}}
+.viz .anim{stroke-dasharray:5 4;animation:vdash 1.8s linear infinite}
+.viz-steps{list-style:none;padding:0;margin:2px 0 4px}
+.viz-steps .vs-h{font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--faint);margin-bottom:8px}
+.viz-steps .vs-h b{color:var(--warn);font-weight:400}
+.viz-steps .vs-h i{font-style:normal;margin:0 6px}
+.viz-steps .vs-r{display:flex;gap:9px;align-items:flex-start;margin:5px 0;font-size:12px;color:#cfdae4}
+.viz-steps .n{flex:0 0 auto;width:19px;height:19px;border:1px solid var(--line2);border-radius:5px;
+  font-family:var(--mono);font-size:9px;color:var(--muted);display:flex;align-items:center;justify-content:center;margin-top:1px}
+#tip{position:fixed;z-index:60;display:none;max-width:280px;background:var(--surface2);border:1px solid var(--line2);
+  border-radius:8px;padding:9px 12px;font-size:12px;color:var(--fg);pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+#cov{position:fixed;left:14px;top:64px;bottom:14px;z-index:12;width:340px;overflow-y:auto;font-family:var(--mono);font-size:9.5px;color:var(--faint);
+  background:rgba(11,20,36,.92);border:1px solid var(--line);border-radius:8px;padding:9px 12px;line-height:1.8;display:none;backdrop-filter:blur(8px)}
+#cov.open{display:block}
+#cov b{color:var(--muted);font-weight:400;letter-spacing:.1em}
+/* режим «Структура ICB» — левая панель с цепочкой иерархии */
+#struct{position:fixed;left:14px;top:64px;bottom:14px;z-index:13;width:min(392px,94vw);overflow-y:auto;display:none;
+  background:rgba(11,20,36,.95);border:1px solid var(--line2);border-radius:12px;padding:16px 18px;backdrop-filter:blur(10px)}
+#struct.open{display:block}
+#struct h3{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--fg);font-weight:400;margin:0 0 2px}
+#struct .snote{font-size:11px;color:var(--muted);margin-bottom:12px}
+.strow{border:1px solid var(--line);border-radius:8px;padding:8px 11px;background:rgba(16,27,46,.55)}
+.strow[data-stgo]{cursor:pointer}
+.strow[data-stgo]:hover{border-color:var(--fg)}
+.strow .stt{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
+.strow b{display:block;font-size:13.5px;color:var(--fg);font-weight:600;margin:1px 0 1px}
+.strow i{font-size:11px;color:var(--muted);font-style:normal;line-height:1.4;display:block}
+.strow.cur{border-color:var(--ctx);box-shadow:0 0 0 1px rgba(45,212,191,.25) inset}
+.starrow{text-align:center;color:var(--faint);font-family:var(--mono);font-size:11px;line-height:1.6}
+.starrow span{font-size:8.5px;color:var(--dim,#5c7186);color:var(--faint);letter-spacing:.06em}
+#struct .stpath{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+#struct .stpath .pt{font-family:var(--mono);font-size:10.5px;color:var(--muted);line-height:1.9}
+#struct .stpath .pt b{color:var(--fg);font-weight:400}
+.typenote{font-family:var(--mono);font-size:10px;line-height:1.5;color:var(--muted);
+  border-left:2px solid var(--line2);padding:3px 0 3px 9px;margin:0 0 8px}
+/* поиск по вселенной */
+#swrap{position:relative;flex:0 1 240px;min-width:120px}
+#srchin{width:100%;font-family:var(--mono);font-size:11px;color:var(--fg);
+  background:rgba(16,27,46,.85);border:1px solid var(--line2);border-radius:6px;
+  padding:9px 12px;min-height:36px;backdrop-filter:blur(4px)}
+#srchin:focus{outline:none;border-color:var(--ctx)}
+#srchin::placeholder{color:var(--faint)}
+#sres{position:absolute;top:calc(100% + 6px);left:0;width:min(430px,88vw);max-height:min(66vh,580px);
+  overflow-y:auto;display:none;z-index:30;background:rgba(11,20,36,.97);
+  border:1px solid var(--line2);border-radius:10px;padding:6px;backdrop-filter:blur(10px);
+  box-shadow:0 14px 44px rgba(0,0,0,.55)}
+#sres.open{display:block}
+.srow{display:flex;gap:9px;padding:7px 9px;border-radius:7px;cursor:pointer;align-items:flex-start}
+.srow:hover,.srow.act{background:var(--surface2)}
+.srow .sty{flex:none;width:86px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;text-align:center;
+  color:var(--faint);border:1px solid var(--line2);border-radius:4px;padding:2px 5px;margin-top:2px}
+/* цветовой код типов объектов в результатах */
+.sty.ty-std{color:#e8eef5;border-color:rgba(232,238,245,.4);background:rgba(232,238,245,.07)}
+.sty.ty-dom{color:#ffd166;border-color:rgba(255,209,102,.45);background:rgba(255,209,102,.08)}
+.sty.ty-area{color:var(--ctx);border-color:rgba(45,212,191,.45);background:rgba(45,212,191,.08)}
+.sty.ty-area.ppl{color:var(--ppl);border-color:rgba(167,139,250,.45);background:rgba(167,139,250,.08)}
+.sty.ty-area.prc{color:var(--prc);border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.08)}
+.sty.ty-concept{color:#9db3c8;border-color:rgba(157,179,200,.4);background:rgba(157,179,200,.07)}
+.sty.ty-el{color:#8fb7ff;border-color:rgba(143,183,255,.4);background:rgba(143,183,255,.08)}
+.sty.ty-kci{color:#5eead4;border-color:rgba(94,234,212,.4);background:rgba(94,234,212,.07)}
+.sty.ty-know{color:#93a5c8;border-color:rgba(147,165,200,.35);background:rgba(147,165,200,.06)}
+.sty.ty-scene{color:#c4b5fd;border-color:rgba(196,181,253,.4);background:rgba(196,181,253,.07)}
+.sty.ty-gal{color:var(--prj);border-color:rgba(127,227,160,.5);background:rgba(127,227,160,.09)}
+.sty.ty-prj{color:#a7f3c7;border-color:rgba(167,243,199,.4);background:rgba(167,243,199,.07)}
+.sty.ty-csf{color:#f9a8d4;border-color:rgba(244,114,182,.5);background:rgba(244,114,182,.09)}
+.sty.ty-risk{color:#fca5a5;border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.08)}
+.sty.ty-kpi{color:#fdba74;border-color:rgba(251,146,60,.45);background:rgba(251,146,60,.08)}
+.sty.ty-scope{color:#7dd3fc;border-color:rgba(125,211,252,.4);background:rgba(125,211,252,.07)}
+.sty.ty-misc{color:#b8b0a6;border-color:rgba(184,176,166,.35);background:rgba(184,176,166,.06)}
+.srow .st{font-size:12.5px;color:var(--fg);line-height:1.3}
+.srow .st mark{background:none;color:var(--ctx);font-weight:700}
+.srow .sp{display:block;font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:1px;line-height:1.4}
+.srow .ss{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.4}
+.srow .ss mark{background:none;color:var(--warn)}
+.sfoot{font-family:var(--mono);font-size:9px;color:var(--faint);padding:7px 9px 4px;
+  border-top:1px solid var(--line);margin-top:4px}
+.snone{padding:12px 10px;font-size:12px;color:var(--muted)}
+@media (max-width:760px){
+  header{padding:8px 10px;gap:6px}
+  .brand{font-size:14px}.brand small{font-size:8px}
+  #crumbs{font-size:9px} #crumbs button{max-width:90px} .brandcol{max-width:52vw}
+  button.act{padding:8px 10px;font-size:10px;min-height:44px}
+  #panel{top:auto;left:8px;right:8px;bottom:8px;width:auto;max-height:56vh;transform:translateY(calc(100% + 16px))}
+  #panel.open{transform:none}
+  #panel.expanded{left:8px;right:8px;width:auto;max-height:calc(100vh - 80px)}
+  #pedge{display:none}
+  #scenebar{left:8px;right:8px;bottom:8px;transform:none;max-width:none}
+  #scenebar button{min-width:100%}
+  #legend{display:none}
+  #swrap{position:fixed;top:66px;left:8px;right:8px;z-index:21;max-width:none}
+  #sres{position:fixed;top:110px;left:8px;right:8px;width:auto;max-height:60vh}
+  #cov{display:none!important}
+  #recallbar{top:58px;font-size:12px}
+  .lbl{padding:3px 6px}
+}
+@media (prefers-reduced-motion:reduce){
+  #panel{transition:none}
+  .viz .anim{animation:none}
+  .viz .vzb,.viz .vza{transition:none}
+}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="labels"></div>
+
+<header data-od-id="topbar">
+  <div class="brandcol">
+    <div class="brand">Вселенная ICB 4.0<small>3 области × 3 сферы · 28 элементов проектов + «Учебные проекты»</small></div>
+    <nav id="crumbs" data-od-id="breadcrumbs" aria-label="Путь по уровням вселенной"></nav>
+  </div>
+  <div id="swrap" data-od-id="search">
+    <input id="srchin" type="text" autocomplete="off" spellcheck="false"
+      placeholder="Поиск: КФУ, риск, 4.3.1…" aria-label="Поиск по вселенной ICB">
+    <div id="sres" role="listbox" aria-label="Результаты поиска"></div>
+  </div>
+  <div class="hbtns">
+    <button class="act" id="b-back" data-od-id="btn-back">← Назад</button>
+    <button class="act" id="b-home" data-od-id="btn-home">Общий вид</button>
+    <button class="act" id="b-recall" data-od-id="btn-recall">Память</button>
+    <button class="act" id="b-labels" data-od-id="btn-labels" title="Скрыть или показать все подписи в сцене">Скрыть надписи</button>
+    <span id="fsctl" data-od-id="font-ctl" title="Размер шрифта подписей">
+      <button class="act" id="b-fs-dn" aria-label="Уменьшить шрифт подписей">A−</button><span id="fsval">11</span><button class="act" id="b-fs-up" aria-label="Увеличить шрифт подписей">A+</button>
+    </span>
+    <button class="act" id="b-struct" data-od-id="btn-struct" title="Цепочка иерархии стандарта">Структура</button>
+    <button class="act" id="b-cov" data-od-id="btn-coverage">Покрытие</button>
+    <button class="act" id="b-help" data-od-id="btn-help">?</button>
+  </div>
+</header>
+
+<div id="cov" data-od-id="coverage"></div>
+<div id="struct" data-od-id="structure-panel"></div>
+
+<aside id="panel" data-od-id="info-panel">
+  <div id="pedge" title="Тянуть для изменения ширины"></div>
+  <button id="pexpand" aria-label="Развернуть" title="Развернуть на весь экран">⤢</button>
+  <button id="pclose" aria-label="Закрыть">✕</button>
+  <div id="pbody"></div>
+</aside>
+
+<div id="recallbar" data-od-id="recall-bar"><div class="q"></div><div class="fb"></div></div>
+
+<div id="scenebar" data-od-id="scene-bar"><div class="sit"></div><div class="row"></div><div class="out"></div><div class="note"></div></div>
+
+<div id="projbar" data-od-id="project-bar"></div>
+
+<div id="legend" data-od-id="legend">
+  <b>Типы связей</b><br>
+  <span class="sw use"></span>область использует сферу<br>
+  <span class="sw solid"></span>содержит / входит в состав<br>
+  <span class="sw kn"></span>требует знания · <span class="sw sk2"></span>требует умения<br>
+  <span class="sw rel"></span>связано с (по стандарту)<br>
+  <span class="sw inf"></span>влияет в учебном примере
+</div>
+
+<button id="keybtn" data-od-id="shapekey-btn" title="Что означают фигуры в сцене">Фигуры</button>
+<div id="shapekey" data-od-id="shapekey" role="dialog" aria-label="Легенда фигур"></div>
+
+<div id="tip"></div>
+<div id="toast"></div>
+
+<div id="tutor" data-od-id="tutorial">
+  <div class="card">
+    <h2>Вселенная ICB 4.0</h2>
+    <div class="sub">Пространственная среда для изучения стандарта. Две оси: область (чем управляем) × сфера (тип компетентности).</div>
+    <ol>
+      <li>Верхний уровень — ICB 4.0 и три <b>области</b>: проекты, программы, портфели. Внутри активной области — три <b>сферы</b>: <b style="color:var(--ctx)">Контекст</b>, <b style="color:var(--ppl)">Люди</b>, <b style="color:var(--prc)">Практика</b> и 28 элементов. Спутник «Основы ICB» — словарь из 12 понятий. Кнопка «Структура» показывает всю цепочку и ваш путь.</li>
+      <li>Нажмите на объект — откроется пояснение: что это, что делает руководитель, пример, частая ошибка и ссылка на PDF. Внизу карточки — «Визуальный образ»: схема, которая помогает запомнить смысл.</li>
+      <li>Повторный клик или кнопка «Погрузиться» переносит внутрь элемента: показатели, критерии, знания и навыки. У трёх элементов есть интерактивные сцены.</li>
+      <li>Кнопка «Память» скрывает подписи и предлагает найти объект по описанию — прогресс сохраняется. «Покрытие» — карта использованных страниц PDF.</li>
+      <li>Зелёная галактика на внешней орбите — <b style="color:var(--prj)">«Учебные проекты»</b>: 5 вымышленных демо-проектов. Внутри планеты — модель: ось «потребность → выгода», граница проекта, КФУ, критерии, KPI, риски, владельцы. Внизу — шаги «разобрать как кейс» и режим «Не путать».</li>
+    </ol>
+    <div class="keys">
+      <b>перетаскивание</b> вращение · <b>Ctrl + тяга</b> сдвиг вбок и вверх-вниз · <b>Ctrl + Shift + тяга</b> сдвиг вглубь · <b>колесо / щипок</b> масштаб · <b>клик</b> выбор · <b>Esc</b> назад · <b>Поиск / клавиша «/»</b> найти объект по слову и перейти к нему · <b>«Надписи»</b> скрыть все подписи · <b>A− / A+</b> размер шрифта подписей · <b>«Фигуры»</b> легенда форм справа внизу · сферы, словарь и галактика проектов медленно движутся по орбитам вокруг области «Управление проектами» · размер шара элемента = число его КПК
+    </div>
+    <button class="pbtn" id="tutor-go">Начать исследование</button>
+  </div>
+</div>
+
+<div id="nogl" data-od-id="nogl">
+  <div class="card">
+    <h1>Вселенная ICB 4.0</h1>
+    <p>Для этой сцены нужен WebGL — в вашем браузере он недоступен или отключён.</p>
+    <p>Структура стандарта: ICB 4.0 → <b>область</b> (проекты / программы / портфели) → <b>сфера</b> → элемент → КПК → критерии, знания и навыки.</p>
+    <p>Сферы: <b style="color:var(--ctx)">Контекст</b> — 5 элементов (с. 43–64),
+    <b style="color:var(--ppl)">Люди</b> — 10 элементов (с. 65–103),
+    <b style="color:var(--prc)">Практика</b> — 13 элементов (с. 104–157).</p>
+    <p>Интерактивные сцены: 4.3.1 Стратегия, 4.4.5 Лидерство, 4.5.10 Планирование и контроль.</p>
+    <p>Откройте файл в актуальном Chrome, Edge или Firefox.</p>
+  </div>
+</div>
+
+<script src="three.min.js"></script>
+<script src="elements-data.js"></script>
+<script src="viz.js"></script>
+<script src="projects-data.js"></script>
+<script src="projects-galaxy.js"></script>
+<script>
+(function(){
+'use strict';
+/* ============ хранилище ============ */
+var KEY='icb-uni-v1', saved={};
+function wnGet(){ try{ var m=(window.name||'').match(/__icbuni=(\{.*\})$/); return m?JSON.parse(m[1]):null; }catch(e){ return null; } }
+function wnSet(){ try{ var n=(window.name||'').replace(/\|?__icbuni=\{.*\}$/,''); window.name=n+'|__icbuni='+JSON.stringify(saved); }catch(e){} }
+try{ saved=JSON.parse(localStorage.getItem(KEY))||wnGet()||{}; }catch(e){ saved=wnGet()||{}; }
+saved.seen=saved.seen||{}; saved.recall=saved.recall||{};
+function persist(){ try{localStorage.setItem(KEY,JSON.stringify(saved));}catch(e){} wnSet(); }
+var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ============ словарь сокращений ============ */
+var GLOSS={
+ 'ICB':'Individual Competence Baseline — базовый стандарт индивидуальной компетентности IPMA',
+ 'КФУ':'Критические факторы успеха — немногие ключевые условия, от которых зависит достижение целей',
+ 'КПЭ':'Ключевые показатели эффективности — измеримые метрики достижения критических факторов успеха',
+ 'КПК':'Ключевой показатель компетентности — наблюдаемый признак владения элементом компетентности',
+ 'PDCA':'Цикл Деминга: Plan — Do — Check — Act (планирование — выполнение — проверка — корректировка)',
+ 'PMO':'Офис управления проектом (Project Management Office)',
+ 'EVM':'Анализ освоенного объёма (Earned Value Management) — метод измерения выполнения проекта',
+ 'ССП':'Сбалансированная система показателей (Balanced Scorecard)',
+ 'ИСР':'Иерархическая структура работ (WBS) — декомпозиция содержания проекта на пакеты работ',
+ 'BATNA':'Best Alternative to a Negotiated Agreement — лучшая альтернатива соглашению, если переговоры сорвутся'
+};
+function T(w){return '<span class="term" data-term="'+w+'">'+w+'</span>';}
+
+/* ============ данные стандарта ============ */
+var SPH={
+ context:{name:'Контекст',en:'Perspective',code:'4.3',css:'ctx',col:0x2dd4bf,pos:[-38,14,0],page:'с. 43',
+   what:'Сфера компетентности «Контекст» отражает умение профессионала работать с окружением проекта: миссией и стратегией организации, структурами и процессами, требованиями и стандартами, властью и культуру.',
+   src:'ICB 4.0, § 4.3, с. 43; § 3.1, с. 30'},
+ people:{name:'Люди',en:'People',code:'4.4',css:'ppl',col:0xa78bfa,pos:[38,14,0],page:'с. 65',
+   what:'Сфера «Люди» — личные качества и качества межличностного взаимодействия, необходимые для успешной работы в проекте и руководства проектом.',
+   src:'ICB 4.0, § 3.1, с. 30; § 4.4, с. 65'},
+ practice:{name:'Практика',en:'Practice',code:'4.5',css:'prc',col:0xfbbf24,pos:[0,-26,8],page:'с. 104',
+   what:'Сфера «Практика» — конкретные методы, инструменты и техники, используемые для успешной реализации проектов, программ и портфелей.',
+   src:'ICB 4.0, § 3.1, с. 30; § 4.5, с. 104'}
+};
+/* полный список 28 элементов (номера, названия, страницы — из оглавления PDF) */
+var COMPS=[
+ ['4.3.1','Стратегия','context','44–48',true],
+ ['4.3.2','Руководство, структуры и процессы','context','49–53',false],
+ ['4.3.3','Соответствие требованиям, стандарты и правила','context','54–58',false],
+ ['4.3.4','Власть и интересы','context','59–61',false],
+ ['4.3.5','Культура и ценности','context','62–64',false],
+ ['4.4.1','Самоосознанность и самоорганизация','people','66–69',false],
+ ['4.4.2','Личностная целостность и надежность','people','70–72',false],
+ ['4.4.3','Межличностные коммуникации','people','73–75',false],
+ ['4.4.4','Отношения и вовлечение','people','76–79',false],
+ ['4.4.5','Лидерство','people','80–83',true],
+ ['4.4.6','Организация командной работы','people','84–87',false],
+ ['4.4.7','Конфликты и кризисы','people','88–91',false],
+ ['4.4.8','Творческий подход','people','92–95',false],
+ ['4.4.9','Переговоры','people','96–99',false],
+ ['4.4.10','Ориентированность на результаты','people','100–103',false],
+ ['4.5.1','Общий план (концепция) реализации проекта','practice','105–109',false],
+ ['4.5.2','Требования и цели','practice','110–112',false],
+ ['4.5.3','Содержание','practice','113–115',false],
+ ['4.5.4','Сроки','practice','116–118',false],
+ ['4.5.5','Организация и информация','practice','119–122',false],
+ ['4.5.6','Качество','practice','123–126',false],
+ ['4.5.7','Финансы','practice','127–131',false],
+ ['4.5.8','Ресурсы','practice','132–135',false],
+ ['4.5.9','Закупки','practice','136–139',false],
+ ['4.5.10','Планирование и контроль','practice','140–144',true],
+ ['4.5.11','Риски и возможности','practice','145–148',false],
+ ['4.5.12','Заинтересованные стороны','practice','149–153',false],
+ ['4.5.13','Изменения и преобразования','practice','154–157',false],
+ ['4.5.14','Отбор и балансировка','practice','—','na']
+];
+var CD={}; COMPS.forEach(function(c){CD[c[0]]={code:c[0],name:c[1],sphere:c[2],page:c[3],pilot:c[4],na:c[4]==='na'};});
+
+/* полные данные трёх пилотных компетентностей — по тексту PDF */
+var DET={
+'4.3.1':{
+ def:'«Стратегия» описывает, как профессионал понимает стратегию организации и с помощью проектов превращает её в управляемые элементы. Проекты инициируются и управляются в соответствии со стратегией и видением, обеспечивают реализацию миссии и устойчивое развитие организации.',
+ purpose:'Дать понимание стратегии и стратегических процессов и обеспечить способность управлять отдельным проектом или проектом в составе программы или портфеля.',
+ does:'Согласовывает цели проекта с миссией и стратегией; поддерживает обоснование проекта в актуальном состоянии; работает с критическими факторами успеха и ключевыми показателями эффективности; предлагает изменения стратегии при изменении окружения.',
+ example:'Проект новой CRM обоснован не «удобством менеджеров», а стратегической целью — ростом повторных продаж; КПЭ привязаны к этой цели.',
+ mistake:'Считать проект успешным, когда продукт сдан, хотя выгода для организации так и не реализована.',
+ knowledge:[['Управление реализацией выгод','контроль того, что результат проекта реально используется и даёт ценность'],['Критические факторы успеха','условия, без которых цель недостижима'],['Ключевые показатели эффективности','измеримые метрики достижения КФУ'],['Миссия организации','предназначение: зачем организация существует'],['Видение организации','образ желаемого будущего'],['Различия между тактикой и стратегией','тактика — ближние действия, стратегия — направление'],['Системы диагностики и интерактивного контроля','контроль по отклонениям и живое обсуждение стратегии'],['Стратегическое управление эффективностью','разбиение стратегических целей на управляемые элементы'],['Бенчмаркинг','сравнение с лучшими практиками'],['Системы управленческого контроля','регулярные циклы проверки исполнения'],['Школы стратегий','подходы к формированию стратегии']],
+ skills:[['Анализ и синтез','разбирать ситуацию и собирать выводы'],['Предприимчивость','видеть и использовать возможности'],['Учёт целей организации','держать в фокусе интересы организации'],['Стратегическое мышление','мыслить направлениями и последствиями'],['Нацеленность на устойчивое развитие','долгосрочная ценность, а не сиюминутный результат'],['Понимание окружения','читать контекст проекта'],['Ориентированность на результаты','вести проект к выгоде']],
+ related:[['Все элементы сферы Контекст','Связано с'],['4.4.5 Лидерство','Связано с'],['4.4.9 Переговоры','Связано с'],['4.4.10 Ориентированность на результаты','Связано с'],['4.5.1 Общий план проекта','Связано с'],['4.5.2 Требования и цели','Связано с'],['4.5.11 Риски и возможности','Связано с'],['4.5.12 Заинтересованные стороны','Связано с']],
+ scene:'strategy',
+ kpis:[
+  {code:'4.3.1.1',name:'Соответствие миссии и видению организации',page:'с. 45',
+   desc:'Профессионал знает, анализирует и учитывает миссию, видение и стратегию организации в своём проекте; периодически оценивает выгоды проекта на соответствие целям организации с помощью формальных инструментов — критических факторов успеха, критериев успешности, ключевых показателей эффективности.',
+   crit:['Учитывает миссию и видение организации','Согласует цели проекта с миссией, видением и стратегией, используя диагностику систем управления','Следит, чтобы цели и выгоды проекта соответствовали миссии, видению и стратегии','Разрабатывает критерии оценки согласованности со стратегией (КФУ, КПЭ и др.)','Следит, чтобы реализация проекта создавала выгоды для организации'],
+   example:'В уставе проекта каждая цель ссылается на пункт стратегии; раз в квартал выгоды сверяются со стратегической картой.',
+   mistake:'Зафиксировать соответствие стратегии один раз на старте и больше не проверять.'},
+  {code:'4.3.1.2',name:'Идентифицирует и использует возможности повлиять на стратегию организации',page:'с. 46',
+   desc:'Стратегия часто создаётся советом директоров и внедряется «сверху вниз», но изменения окружения делают её неактуальной. Профессионал владеет инструментами анализа стратегии и умеет обосновать руководству потребность в её пересмотре — интерактивными системами управления и подходом «снизу вверх».',
+   crit:['Знает процесс разработки стратегии','Идентифицирует новые риски и возможности, способные изменить стратегию','Вовлекает коллег в анализ стратегии (подход «снизу вверх», амбициозные цели)','Определяет, как можно усовершенствовать стратегию','Влияет на разработку стратегии, предлагая изменения'],
+   example:'Команда проекта видит, что рынок уходит в подписочную модель, и готовит для правления обоснование корректировки стратегии.',
+   mistake:'Считать, что «стратегия — не моё дело», и молча выполнять устаревший план.'},
+  {code:'4.3.1.3',name:'Разрабатывает и поддерживает в актуальном состоянии обоснование проекта',page:'с. 46',
+   desc:'Обоснование проекта — формальный документ с официальными причинами инициации и ожидаемыми выгодами. Он не статичен: периодически обновляется и проверяется на актуальность. Профессионал ведёт мониторинг конфигурации проекта и вносит изменения — вплоть до предложения о прекращении проекта.',
+   crit:['Анализирует обоснование проекта с точки зрения интересов бизнеса','Определяет цели, необходимые для создания запланированных выгод','Подтверждает обоснование и представляет его спонсору и/или владельцу проекта','Пересматривает и утверждает обоснование с учётом факторов окружения','Управляет конфигурацией проекта и реализацией выгод','Следит, не утратил ли проект стратегическое значение, и изменяет конфигурацию'],
+   example:'Раз в квартал обоснование перепроверяется: если выгода испарилась — проект останавливают, а не «дожимают».',
+   mistake:'Писать обоснование один раз «для галочки» и годами не возвращаться к нему.'},
+  {code:'4.3.1.4',name:'Определяет, оценивает и анализирует критические факторы успеха проекта',page:'с. 47',
+   desc:'Критические факторы успеха (КФУ) напрямую связаны с целями организации и проекта. Их относительная важность меняется с динамикой окружения и проекта, поэтому профессионал периодически оценивает актуальность КФУ и вносит изменения — вплоть до предложения о прекращении проекта.',
+   crit:['Получает или разрабатывает КФУ, соответствующие стратегическим целям','Использует формальные КФУ для согласования со стратегией и учитывает неформальное окружение','Вовлекает подотчётных сотрудников в разработку КФУ','Использует КФУ для управления отношениями с заинтересованными сторонами','Использует КФУ для системы стимулов и культуры мотивации','Пересматривает реализацию КФУ в более широком стратегическом контексте'],
+   example:'Для проекта внедрения портала КФУ — «готовность пользователей менять процесс», а не только «сроки разработки».',
+   mistake:'Составить список из 20 «критических» факторов — тогда ни один не критичен.'},
+  {code:'4.3.1.5',name:'Определяет, оценивает и анализирует ключевые показатели эффективности',page:'с. 47–48',
+   desc:'КПЭ соответствуют каждому КФУ и используются для измерения их достижения и оценки успешности. КПЭ делятся на опережающие, отложенные и текущие; их состав меняется под влиянием окружения. КПЭ отражают и аспекты персонала — мотивацию, коммуникацию, развитие.',
+   crit:['Разрабатывает КПЭ для каждого КФУ','Решает, какие показатели использовать — опережающие, отложенные или текущие','Использует КПЭ для стратегического управления эффективностью','Использует КПЭ для влияния на заинтересованные стороны','Использует КПЭ в планах развития сотрудников и системе стимулов','Пересматривает конфигурацию проекта, используя КПЭ и управление выгодами'],
+   example:'КФУ «пользователи приняли систему» измеряется опережающим КПЭ — долей активных пользователей в пилоте, а не только фактом запуска.',
+   mistake:'Мерить только сроки и бюджет, игнорируя показатели выгоды и людей.'}
+ ]},
+'4.4.5':{
+ def:'Быть лидером — значит задавать направление и вести за собой других людей или группы, часто увлекая личным примером. Лидер умеет выбирать правильный стиль управления в разных ситуациях. Профессионал — лидер не только в команде, но и при представлении проекта высшему руководству и другим заинтересованным сторонам.',
+ purpose:'Владение этим элементом позволяет быть лидером, направлять и мотивировать других людей и добиваться максимальной эффективности на личном и командном уровне.',
+ does:'Выбирает стиль лидерства под ситуацию, проект и команду; проявляет инициативу и берёт ответственность; направляет, коучирует и наставляет; применяет власть и влияние в правильный момент; принимает и пересматривает решения.',
+ example:'На старте проекта лидер директивно задаёт рамки, а в стабильной фазе делегирует и коучирует.',
+ mistake:'Сводить лидерство к должности: «я руководитель проекта — значит, я лидер по умолчанию».',
+ knowledge:[['Модели лидерства','ситуационное, трансформационное, сервисное и др.'],['Индивидуальное обучение','план развития каждого члена команды'],['Техники коммуникации','слушание, вопросы, обратная связь'],['Коучинг','развитие через вопросы, а не указания'],['Смыслопроизводство и смыслопередача','делать работу осмысленной и доносить это'],['Основные представления о власти','источники и границы влияния'],['Способы принятия решений','консенсус, большинство, компромисс, авторитарное решение']],
+ skills:[['Самоосознанность и самоанализ','понимать своё влияние на других'],['Умение слушать','слышать, прежде чем решать'],['Эмоциональная устойчивость','хладнокровие в сложных ситуациях'],['Демонстрация ценностей','личный пример вместо лозунгов'],['Работа над ошибками и неудачами','извлекать уроки без поиска виноватых'],['Формулирование и разделение ценностей','общий язык команды'],['Создание командного настроя','энергия и мотивация'],['Методы и техники коммуникации и лидерства','инструментарий влияния'],['Управление виртуальными командами','лидерство на расстоянии']],
+ related:[['Все элементы сферы Люди','Связано с'],['Все элементы сферы Практика','Связано с'],['4.3.4 Власть и интересы','Связано с'],['4.3.5 Культура и ценности','Связано с']],
+ scene:'leadership',
+ kpis:[
+  {code:'4.4.5.1',name:'Проявляет инициативу, предлагает помощь и советы',page:'с. 81',
+   desc:'Проявлять инициативу — демонстрировать желание и способность начинать действия, не дожидаясь запроса: выдвигать предложения, давать советы, брать руководство, помогать другим. Инициативность делает человека заметным и влиятельным, но при плохом результате есть риск потери статуса — поэтому инициативу нужно взвешивать.',
+   crit:['Предлагает и предпринимает действия','Предлагает помощь и советы, не дожидаясь приглашения','В решениях и действиях ориентируется на будущее («на шаг вперёд»)','Балансирует инициативы и риски'],
+   example:'Заметив риск в соседней работе, лидер заранее предлагает помощь, а не ждёт эскалации.',
+   mistake:'Инициатива ради инициативы — действия без взвешивания «за» и «против».'},
+  {code:'4.4.5.2',name:'Берёт на себя ответственность и демонстрирует заинтересованность',page:'с. 81',
+   desc:'Принятие ответственности — подтверждение личной вовлечённости. Приверженность целям проекта заставляет других верить в их важность. Профессионал выступает как предприниматель или владелец проекта: отслеживает процессы и результаты, вносит улучшения и учится в проекте.',
+   crit:['Демонстрирует поведением, отношением и словами заинтересованность в результатах','Позитивно отзывается о проекте','Вселяет в других энтузиазм по поводу проекта','Устанавливает критерии и показатели эффективности','Ищет способы улучшить процессы проекта','Поощряет обучение'],
+   example:'На разборе ошибки лидер первым говорит о своей доле ответственности, а не ищет виноватого.',
+   mistake:'Требовать вовлечённости от команды, демонстрируя равнодушие к судьбе проекта.'},
+  {code:'4.4.5.3',name:'Осуществляет руководство, коучинг и менторинг',page:'с. 81–82',
+   desc:'Коучинг и менторинг направлены на совершенствование способностей и уверенности членов команды. Профессионал формулирует личные и общие цели, создаёт видение проекта и рассказывает о нём, сохраняет хладнокровие в сложных ситуациях и знает, когда лучше воздержаться от своего мнения, чтобы команда проявила креативность.',
+   crit:['Направляет людей и команды','Осуществляет коучинг и менторинг для совершенствования способностей','Формирует видение, определяет ценности и руководит в соответствии с ними','Согласовывает цели отдельных людей с общими целями и показывает пути их достижения'],
+   example:'Вместо готового решения лидер задаёт вопросы, пока специалист сам не находит план.',
+   mistake:'Отвечать решением на каждый вопрос — команда перестаёт думать самостоятельно.'},
+  {code:'4.4.5.4',name:'Применяет адекватную власть и влияние для достижения целей',page:'с. 82',
+   desc:'Власть и влияние — создание другим возможности следовать за лидером. Профессионал понимает потребности коллег и заинтересованных сторон и руководит действиями людей, даже не являющихся его подчинёнными. Открытое использование власти вызывает сопротивление — лидер знает, когда, как и какие средства влияния применять.',
+   crit:['Использует различные подходы к применению власти и влияния','Использует власть и/или влияние в правильный момент','Заинтересованные стороны видят в нём лидера проекта или команды'],
+   example:'На тупиковом совещании лидер одной фразой формулирует выбор и срок — вместо приказа.',
+   mistake:'Давить должностью там, где достаточно вовремя сказанного слова.'},
+  {code:'4.4.5.5',name:'Принимает, продвигает и пересматривает решения',page:'с. 82–83',
+   desc:'Решения принимаются в условиях недостаточности и противоречивости информации — иногда на интуиции. Профессионал пересматривает решения при получении новых данных и влияет на тех, кто принимает решения в проекте (линейных менеджеров, комитеты), чтобы решения принимались вовремя.',
+   crit:['Умеет работать в условиях неопределённости','Поощряет других высказывать мнение до принятия решения','Разъясняет основания для решения','Влияет на решения заинтересованных сторон, предоставляя пояснения и анализ','Чётко сообщает о своих решениях и намерениях','Пересматривает решения при получении новых фактов','Анализирует опыт для улучшения процесса принятия решений'],
+   example:'Получив новые данные о риске, лидер публично отменяет вчерашнее решение и объясняет почему.',
+   mistake:'Считать изменение решения слабостью и цепляться за ошибочный курс.'}
+ ]},
+'4.5.10':{
+ def:'Все элементы проекта включаются в сбалансированный детальный план, выполнение которого контролируется. План регулярно обновляется с учётом изменений в проекте и его окружении; средства контроля адаптируются и совершенствуются, чтобы профессионал всегда мог контролировать проект.',
+ purpose:'Создавать и поддерживать сбалансированное и целостное представление об управлении проектом — это жизненно важно для достижения согласованных результатов.',
+ does:'Базовый циклический процесс: планирование → выполнение → мониторинг → корректировка плана или выполнения. Профессионал консолидирует информацию, запускает проект и фазы, измеряет факт против базового плана, отчитывается, управляет изменениями и закрывает фазы с оценкой опыта.',
+ example:'Еженедельный контрольный цикл: факт по срокам и стоимости против базового плана, прогноз, решение об изменении.',
+ mistake:'Считать план догмой: защищать устаревший базовый план вместо формального управления изменениями.',
+ knowledge:[['Переход от фазы к фазе / от этапа к этапу','точки принятия решения между фазами'],['Отчётность','регулярные статусы и прогнозы'],['Офис управления проектом','PMO — центр методологии и отчётности'],['Цикл Деминга (PDCA)','планирование — действие — проверка — корректировка'],['Запросы на изменения','формальный вход для любых изменений'],['Управление по целям','контроль по достижению целей'],['Управление по исключениям','отчёты только при важных отклонениях'],['Анализ полученного опыта','извлечённые уроки'],['Планирование фазы/этапа/спринта/релиза','детальное планирование ближнего горизонта'],['Решение о фондах и «сделать или купить»','ресурсные решения'],['Отчёты об исключениях и о проблемах','сигналы о выходе за границы'],['План управления проектом','единый согласованный документ'],['Оценка проекта (фазы)','итоговая оценка и решение о продолжении'],['Прекращение проекта','процедура остановки'],['Органы, принимающие решения','кто и что утверждает']],
+ skills:[['Совещания по контролю прогресса','регулярный ритм контроля'],['Управление изменениями','формальный процесс от запроса до верификации'],['Отчётность','статус и прогноз для сторон'],['Переговоры по запросам на изменения','согласование условий изменений'],['Семинар по запуску проекта','стартовое совещание, проектная мастерская'],['Итоговое совещание по проекту','закрытие и уроки'],['Управление проблемами','ведение и эскалация проблем'],['Анализ освоенного объёма','EVM — измерение исполнения'],['График смещения сроков','визуализация дрейфа плана']],
+ related:[['Все элементы сферы Практика','Связано с'],['4.3.1 Стратегия','Связано с'],['4.3.2 Руководство, структуры и процессы','Связано с'],['4.3.3 Соответствие требованиям','Связано с'],['4.4.5 Лидерство','Связано с'],['4.4.7 Конфликты и кризисы','Связано с'],['4.4.8 Творческий подход','Связано с'],['4.4.9 Переговоры','Связано с']],
+ scene:'planning',
+ kpis:[
+  {code:'4.5.10.1',name:'Запускает проект, разрабатывает и согласовывает план управления',page:'с. 141–142',
+   desc:'Первая фаза закладывает основу успеха и характеризуется неопределённостью: информации мало, ожидания сторон нереалистичны. Нужно умерить чрезмерный оптимизм, провести совещание по запуску и привлечь правильных людей. План управления проектом опирается на требования, результаты, ограничения, ресурсы, бюджет и риски; он согласовывается и утверждается.',
+   crit:['Организует процесс запуска проекта','Собирает информацию от заинтересованных сторон и экспертов','Анализирует, оценивает и приоритизирует информацию','Проводит совещание по запуску проекта','Готовит и согласовывает устав и/или план управления проектом','Выполняет инициацию проекта и готовит переход в следующую фазу'],
+   example:'На стартовом совещании фиксируются вехи, роли и критерии успеха каждой фазы.',
+   mistake:'Стартовать «на энтузиазме» без согласованного плана управления.'},
+  {code:'4.5.10.2',name:'Инициирует переход в следующую фазу и управляет этим процессом',page:'с. 142',
+   desc:'Запуск каждой следующей фазы осуществляется с учётом её целей, необходимых организационных изменений и потребности подтвердить или изменить устав и планы. Обновляются календарный план, затраты, ресурсы, реестр рисков и ожидаемые выгоды. Стартовое совещание вовлекает участников.',
+   crit:['Организует управление процессом выполнения проекта','Определяет цели и результаты следующей фазы','Управляет переходом от фазы к фазе','Организует и проводит стартовое совещание'],
+   example:'Перед фазой 2 пересматривается реестр рисков и обновляется детальный план.',
+   mistake:'Перетекать из фазы в фазу без точки решения и обновления планов.'},
+  {code:'4.5.10.3',name:'Контролирует исполнение и предпринимает корректирующие действия',page:'с. 142–143',
+   desc:'Контроль базируется на целях, планах и договорах: измерение факта, сравнение с базовым планом, выявление отклонений, корректирующие действия. Диагностический контроль — по отклонениям; интерактивный — через обратную связь команды при неопределённости. Контроль даёт прогноз на будущие периоды.',
+   crit:['Определяет цикл контроля выполнения проекта','Описывает средства и методы контроля выполнения','Измеряет выполнение и прогресс проекта'],
+   example:'Отклонение по срокам >10% запускает анализ причин и корректирующее действие, а не просто фиксируется.',
+   mistake:'Измерять факт, но не сравнивать с базовым планом — контроль без контроля.'},
+  {code:'4.5.10.4',name:'Отчитывается о прогрессе проекта',page:'с. 143',
+   desc:'Отчётность — статус (стоимость, время, ресурсы, риски, ограничения) за текущий и предыдущие периоды и прогноз до завершения. Команда отчитывается руководителю, руководитель — заинтересованным сторонам. Для опытных команд достаточно отчётов «по исключительным ситуациям».',
+   crit:['Создаёт структуру отчётности (что, когда, как часто, как)','Создаёт отчёт о прогрессе','Создаёт отчёт о прогнозе','Создаёт отчёт о переходе в следующую фазу'],
+   example:'Одностраничный статус-отчёт: факт, прогноз, решения, которые нужны от спонсора.',
+   mistake:'Отчёты «для архива»: много страниц, ноль решений.'},
+  {code:'4.5.10.5',name:'Оценивает, согласовывает и реализует изменения в проекте',page:'с. 143',
+   desc:'Изменения управляются формальным заранее согласованным процессом: идентификация, описание, классификация, оценка, одобрение или отклонение, реализация и верификация. Оценивается прямое и косвенное влияние на результаты, расписание, стоимость и риски; после одобрения план обновляется.',
+   crit:['Организует процесс управления изменениями','Создаёт отчёты об исключениях или об изменениях','Изменяет содержание проекта'],
+   example:'Запрос заказчика на новую функцию проходит оценку влияния на сроки и бюджет до решения.',
+   mistake:'Принимать изменения устно и «втихую» — базовый план перестаёт существовать.'},
+  {code:'4.5.10.6',name:'Закрывает и оценивает фазу проекта',page:'с. 144',
+   desc:'Формальное закрытие выполняется для каждой фазы: оценка, итоговая документация, проверка достижения целей и ожиданий заказчика, передача открытых проблем решающим органам. По договору — сдача работ, гарантийный срок, обучение пользователей. Документируются извлечённые уроки, команда официально освобождается.',
+   crit:['Организует процесс закрытия проекта','Организует и проводит закрывающее совещание','Организует полную оценку проекта','Готовит отчёт о полученном опыте'],
+   example:'Фаза закрывается коротким отчётом об опыте — уроки уходят в следующий проект.',
+   mistake:'Растворить команду без закрытия — опыт теряется, пользователи без обучения.'}
+ ]}
+};
+/* данные остальных 25 элементов — извлечены из PDF парсером tools/parse-elements.py */
+if(window.DETX)Object.keys(DETX).forEach(function(k){DET[k]=DETX[k];});
+
+/* области управления (domains) — первая ось классификации ICB4.
+   Полностью раскрыта только область управления проектами; остальные —
+   архитектурно готовые «призраки» (ICB4 Том 2 и Том 3). */
+var DOMS=[
+ {id:'pm',name:'Управление проектами',en:'Project Management',col:0xffd9a3,on:true,
+  what:'Область (domain) управленческой деятельности — отвечает на вопрос «чем управляем?»: проектом. ICB4 описывает компетентность по областям, а не по ролям, потому что названия ролей различаются по отраслям и языкам.',
+  does:'В этой области действуют все три сферы и 28 элементов компетентности — от «Стратегии» до «Изменений и преобразований».',
+  example:'Вселенная внутри: Контекст → Люди → Практика → элементы → показатели → критерии.',
+  mistake:'Путать область со сферой: область — это предмет управления, сфера — тип компетентности, применимый к любой области.',
+  src:'ICB 4.0, § 3.1–3.3, с. 30–36; том «Управление проектами»'},
+ {id:'prog',name:'Управление программами',en:'Programme Management',col:0x9fb8cc,on:false,
+  what:'Вторая область ICB4: программа — временная организация взаимосвязанных компонентов ради стратегической цели и выгод. Та же «компетентностная сетка», но другой предмет управления.',
+  does:'Раскрывается в Томе 2 ICB4. В этой вселенной показана как контур — раздел в разработке.',
+  example:'Программа «цифровизации продаж» координирует проекты CRM, обучения и прайсинга ради общей выгоды.',
+  mistake:'Считать программу «большим проектом» — у неё логика выгод и изменений.',
+  src:'ICB 4.0, § 3.1, с. 30–31; § 3.3, с. 36'},
+ {id:'port',name:'Управление портфелями',en:'Portfolio Management',col:0x9fb8cc,on:false,
+  what:'Третья область ICB4: постоянная деятельность по отбору и балансировке проектов и программ под стратегические цели и доступные ресурсы.',
+  does:'Раскрывается в Томе 3 ICB4. Здесь действует элемент 4.5.14 «Отбор и балансировка», для проектов неприменимый.',
+  example:'Портфель года: проекты отбираются по вкладу в стратегию и доступности ресурсов.',
+  mistake:'Включать в портфель всё подряд — портфель это инструмент отбора и балансировки.',
+  src:'ICB 4.0, § 3.1, с. 30–31; § 3.3, с. 36'}
+];
+/* короткие обучающие пояснения типа узла — показываются в карточке */
+var TYPENOTE={
+ dom:'ОБЛАСТЬ (DOMAIN) — «чем управляем?»: проектом, программой или портфелем',
+ sph:'СФЕРА КОМПЕТЕНТНОСТИ — «какой тип компетентности применяем»: Контекст, Люди или Практика. Каждая сфера действует в каждой области',
+ comp:'ЭЛЕМЕНТ КОМПЕТЕНТНОСТИ — крупная составляющая: то, чем профессионал обязан владеть',
+ kpi:'КПК — ключевой показатель компетентности: как владение элементом проявляется в наблюдаемом поведении',
+ crit:'КРИТЕРИЙ — измеримый признак, по которому оценивают показатель',
+ kn:'ЗНАНИЕ — что профессионал должен знать',
+ sk:'УМЕНИЕ / НАВЫК — что профессионал должен уметь',
+ concept:'БАЗОВОЕ ПОНЯТИЕ — термин словаря ICB (спутник «Основы ICB»)'};
+
+/* вводные понятия стандарта (§ 2–3) — словарь «Основы ICB» */
+var CONCEPTS=[
+ ['Компетентность','с. 19–20',
+  'Компетентность профессионала — способность применять знания, навыки и умения для достижения желаемых результатов. Знания — информация, подтверждённая опытом; навыки — способность выполнить задачу; умения — эффективное применение на практике.',
+  'Опыт играет косвенную, но ключевую роль: без него компетентность нельзя ни продемонстрировать, ни усовершенствовать — поэтому сертификация оценивает и опыт тоже.',
+  '«Знаю диаграмму Ганта» — знание; «умею построить» — навык; «применяю её, чтобы управлять сроками» — умение.',
+  'Сводить компетентность к знаниям: сдать теорию ≠ уметь управлять проектом.'],
+ ['Знания','с. 19–20',
+  'Знания — информация об объекте, подтверждённая опытом: факты, методы, модели и принципы, которые профессионал может объяснить и назвать.',
+  'В стандарте знания даны перечнем внутри каждого элемента — это то, что нужно «знать о», а не уметь делать.',
+  'Знать о критических факторах успеха — значит уметь их назвать и объяснить, зачем они.',
+  'Путать «знать» и «уметь»: экзамен проверяет оба слоя отдельно.'],
+ ['Умения и навыки','с. 19–20',
+  'Навык — способность выполнить задачу; умение — эффективно применять навык на практике в реальных ситуациях проекта.',
+  'Перечень умений и навыков в элементе — это прикладной слой: то, что должно быть видно в работе, а не в тетради.',
+  'Навык — построить диаграмму Ганта; умение — управлять сроками проекта с её помощью под давлением сроков.',
+  'Считать навыки «мягкими» и необязательными: без них знания не конвертируются в результат.'],
+ ['Проект','с. 31, 40',
+  'Проект — уникальная, временная, мультидисциплинарная и организованная деятельность по достижению согласованного конечного результата в рамках требований и ограничений. Проект — способ создать ценность для организации.',
+  'Преимущества проекта как способа работы: сфокусированность (одна группа целей), контроль (предопределённые ограничения), специализация (отдельная профессия).',
+  'Миграция офиса, запуск продукта, внедрение CRM — проекты; ежедневная поддержка системы — операция.',
+  'Называть проектом любую задачу: без временности и уникальности проектный инструментарий избыточен.'],
+ ['Программа','с. 31',
+  'Программа запускается для достижения стратегической цели: временная организация из взаимосвязанных компонентов, управляемых скоординированно. Цель программы — реализация изменений и получение выгод.',
+  'Программами, как правило, управляют старшие руководители проектов или директора проектов.',
+  'Программа «цифровизации продаж» объединяет проекты CRM, обучения и нового прайсинга ради общей выгоды.',
+  'Считать программу «большим проектом»: у программы другая логика — выгоды и изменения, а не один результат.'],
+ ['Портфель проектов','с. 31',
+  'Портфель — совокупность проектов и/или программ, не обязательно связанных между собой, сгруппированных для эффективного управления и достижения стратегических целей.',
+  'В отличие от проектов и программ (временная деятельность), управление портфелями — постоянная деятельность.',
+  'Портфель года: 12 проектов, отобранных по вкладу в стратегию и доступным ресурсам.',
+  'Включать в портфель всё подряд: портфель — инструмент отбора и балансировки.'],
+ ['Область (domain)','с. 30',
+  'В ICB4 компетентность описывается не по ролям («руководитель проекта»), а по областям: управление проектами, программами, портфелями — потому что названия ролей различаются по отраслям и языкам.',
+  'Область отвечает на вопрос «чем управляем?»; этот том описывает область управления проектами.',
+  'Один и тот же элемент «Переговоры» применим и к проекту, и к портфелю — различается контекст применения.',
+  'Путать область со сферой: область — предмет управления, сфера — тип компетентности.'],
+ ['Сфера компетентности','с. 29–30, 41',
+  'Три сферы формируют «Глаз компетентности»: Контекст (работа с окружением), Люди (личные и межличностные качества), Практика (методы и инструменты). Профессионал должен обладать всеми элементами своей области.',
+  'Сфера отвечает на вопрос «какой тип компетентности применяем?» и действует в каждой области управления.',
+  'Слабый результат проекта при сильной «Практике» часто означает пробел в «Люди» или «Контекст».',
+  'Развивать только методы (Практика), игнорируя сферы Люди и Контекст.'],
+ ['Элемент компетентности','с. 30–31, 41',
+  'Элемент компетентности — единица «Глаза компетентности»: всего 29 элементов в трёх сферах, из них 28 применимы к управлению проектами. Каждый элемент включает ключевые показатели компетентности (КПК).',
+  'Структура каждого элемента: определение, назначение, описание, знания, умения и навыки, связанные элементы, КПК с критериями.',
+  '4.5.10 «Планирование и контроль» — элемент; его показатель 4.5.10.3 «Контролирует исполнение» — КПК.',
+  'Учить элементы списком: каждый имеет внутреннюю структуру, и экзамен проверяет показатели.'],
+ ['Ключевой показатель (КПК)','с. 41',
+  'Ключевой показатель компетентности (КПК) — наблюдаемый признак владения элементом: то, что профессионал делает, когда компетентен. Каждый КПК раскрывается измеримыми критериями.',
+  'КПК — единица проверки: на экзамене и в оценке смотрят проявления, а не пересказ определения.',
+  'Элемент «Планирование и контроль» → КПК 4.5.10.3 «Контролирует исполнение проекта» → критерии «измеряет факт против плана».',
+  'Запоминать элемент по названию, не раскрывая его показатели — на экзамене спрашивают именно их.'],
+ ['Критерий','с. 41–43',
+  'Критерий — конкретный измеримый признак, по которому оценивают показатель компетентности: доказательство, что действие действительно выполнено.',
+  'Критерии превращают КПК из декларации в проверяемое поведение: каждый можно подтвердить свидетельством из практики.',
+  'КПК «берёт ответственность» → критерий «демонстрирует заинтересованность поведением, отношением и словами».',
+  'Путать критерий с примером: пример иллюстрирует, критерий проверяет.'],
+ ['Опыт и совершенствование','с. 20, 22–26',
+  'Совершенствование компетентности происходит в работе: саморазвитие, взаимодействие с коллегами, сообщества практиков, обучение. Опыт дополняет знания и проверяется при сертификации.',
+  'Условия для развития: информация о текущем уровне, доступ к экспертным знаниям, ресурсы и культура, ценящая развитие.',
+  'Журнал ошибок и календарь повторения из этой серии артефактов — инструменты саморазвития.',
+  'Ждать, что компетентность вырастет от чтения стандарта: она формируется в практике и разборе опыта.']
+];
+
+
+/* ============ boot WebGL ============ */
+var canvas=document.getElementById('gl');
+function noGL(){ document.getElementById('nogl').classList.add('open'); }
+if(!window.THREE || !window.WebGLRenderingContext){ noGL(); return; }
+var renderer;
+try{
+  var test=document.createElement('canvas');
+  if(!(test.getContext('webgl')||test.getContext('experimental-webgl'))) throw 0;
+  renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:false});
+}catch(e){ noGL(); return; }
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+var scene=new THREE.Scene();
+scene.background=new THREE.Color(0x070d18);
+scene.fog=new THREE.FogExp2(0x070d18,0.0026);
+var camera=new THREE.PerspectiveCamera(50,1,.1,2500);
+scene.add(new THREE.AmbientLight(0x8aa0c0,.55));
+var sun=new THREE.DirectionalLight(0xffffff,.7); sun.position.set(40,60,50); scene.add(sun);
+var world=new THREE.Group(); scene.add(world);
+
+/* звёздный фон */
+(function(){
+  var g=new THREE.BufferGeometry(), n=1400, p=new Float32Array(n*3);
+  for(var i=0;i<n;i++){ var r=300+Math.random()*260, th=Math.random()*6.283, ph=Math.acos(2*Math.random()-1);
+    p[i*3]=r*Math.sin(ph)*Math.cos(th); p[i*3+1]=r*Math.sin(ph)*Math.sin(th)*.6; p[i*3+2]=r*Math.cos(ph)*Math.cos(th); }
+  g.setAttribute('position',new THREE.BufferAttribute(p,3));
+  scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x8fb0d8,size:1.1,sizeAttenuation:false,transparent:true,opacity:.55,fog:false})));
+})();
+
+/* ============ камера-орбита ============ */
+var rig={yaw:.65,pitch:.3,dist:104,t:new THREE.Vector3(0,-2,0),
+         gyaw:.65,gpitch:.3,gdist:104,gt:new THREE.Vector3(0,-2,0)};
+function fly(yaw,pitch,dist,t){
+  if(yaw==null)yaw=rig.gyaw; if(pitch==null)pitch=rig.gpitch; if(dist==null)dist=rig.gdist;
+  rig.gyaw=yaw; rig.gpitch=Math.max(-1.35,Math.min(1.35,pitch)); rig.gdist=Math.max(6,Math.min(360,dist));
+  if(t)rig.gt.copy(t);
+  if(RM){rig.yaw=rig.gyaw;rig.pitch=rig.gpitch;rig.dist=rig.gdist;rig.t.copy(rig.gt);}
+}
+function camStep(){
+  var k=RM?1:.085;
+  rig.yaw+=(rig.gyaw-rig.yaw)*k; rig.pitch+=(rig.gpitch-rig.pitch)*k;
+  rig.dist+=(rig.gdist-rig.dist)*k; rig.t.lerp(rig.gt,k);
+  var cp=Math.cos(rig.pitch),sp=Math.sin(rig.pitch);
+  camera.position.set(rig.t.x+rig.dist*cp*Math.sin(rig.yaw),rig.t.y+rig.dist*sp,rig.t.z+rig.dist*cp*Math.cos(rig.yaw));
+  camera.lookAt(rig.t);
+}
+/* ввод: мышь + касания */
+var ptrs=new Map(), downPos=null, dragDist=0, pinch0=0, pinchD0=0, panMode=false;
+canvas.addEventListener('pointerdown',function(e){
+  canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  downPos={x:e.clientX,y:e.clientY}; dragDist=0; canvas.classList.add('dragging');
+  panMode=(e.button===0 && e.ctrlKey)?(e.shiftKey?'depth':'pan'):false;
+  if(ptrs.size===2){var a=[...ptrs.values()];pinch0=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);pinchD0=rig.gdist;panMode=false;}
+});
+canvas.addEventListener('pointermove',function(e){
+  if(!ptrs.has(e.pointerId))return;
+  var p=ptrs.get(e.pointerId),dx=e.clientX-p.x,dy=e.clientY-p.y;
+  p.x=e.clientX;p.y=e.clientY; dragDist+=Math.abs(dx)+Math.abs(dy);
+  if(ptrs.size===1){
+    if(panMode){
+      var s=2*rig.gdist*Math.tan(camera.fov*Math.PI/360)/Math.max(1,canvas.clientHeight);
+      var rx=Math.cos(rig.gyaw),rz=-Math.sin(rig.gyaw),fx=-Math.sin(rig.gyaw),fz=-Math.cos(rig.gyaw);
+      rig.gt.x-=rx*dx*s; rig.gt.z-=rz*dx*s;
+      if(panMode==='depth'){ rig.gt.x-=fx*dy*s; rig.gt.z-=fz*dy*s; }
+      else { rig.gt.y-=dy*s; }
+    } else { rig.gyaw-=dx*.0052; rig.gpitch=Math.max(-1.35,Math.min(1.35,rig.gpitch+dy*.0052)); }
+  }
+  else if(ptrs.size===2){var a=[...ptrs.values()];var d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
+    if(pinch0>0) rig.gdist=Math.max(6,Math.min(360,pinchD0*pinch0/Math.max(20,d)));}
+});
+function endPtr(e){
+  ptrs.delete(e.pointerId); canvas.classList.remove('dragging');
+  if(dragDist<7 && downPos && !panMode) pick(e.clientX,e.clientY);
+  downPos=null; panMode=false;
+}
+canvas.addEventListener('pointerup',endPtr);
+canvas.addEventListener('pointercancel',function(e){ptrs.delete(e.pointerId);canvas.classList.remove('dragging');downPos=null;panMode=false;});
+window.addEventListener('keydown',function(e){ if(e.key==='Control')canvas.classList.add('panning'); });
+window.addEventListener('keyup',function(e){ if(e.key==='Control')canvas.classList.remove('panning'); });
+window.addEventListener('blur',function(){ canvas.classList.remove('panning'); });
+canvas.addEventListener('wheel',function(e){e.preventDefault();rig.gdist=Math.max(6,Math.min(360,rig.gdist*(1+e.deltaY*.0011)));},{passive:false});
+
+/* ============ реестры уровня ============ */
+var pickables=[],labels=[],links=[],infoReg={},markers={};
+/* размеры мира: радиус оболочки сферы и орбиты элементов внутри */
+var SHELL_R=16, ORB_R=12.6;
+var L={level:'universe',sphere:null,comp:null,sceneKind:null,project:null};
+var selected=null;
+
+function clearWorld(){
+  world.traverse(function(o){ if(o.geometry)o.geometry.dispose(); if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(function(m){m.dispose();});} });
+  world.clear(); pickables=[];links=[];infoReg={};markers={};selected=null;sphGrps={};sunGrp=null;
+  var lb=document.getElementById('labels'); lb.innerHTML=''; labels=[];
+}
+function reg(obj,id,info){
+  obj.userData.oid=id;
+  obj.traverse(function(o){ if(o.isMesh){o.userData.oid=id;pickables.push(o);} });
+  infoReg[id]=info; return obj;
+}
+function addLabel(getPos,id,text,sub,cls,opts){
+  var el=document.createElement('div'); el.className='lbl '+(cls||'');
+  el.innerHTML=text+(sub?'<small>'+sub+'</small>':'');
+  el.addEventListener('click',function(ev){ev.stopPropagation();pickId(id);});
+  document.getElementById('labels').appendChild(el);
+  var l={el:el,get:getPos,id:id,base:text,sub:sub,prio:1};
+  if(opts){ if(opts.prio!=null)l.prio=opts.prio; if(opts.maxDist)l.maxDist=opts.maxDist; if(opts.occl)l.occl=opts.occl;
+    if(opts.pgLayer)l.pgLayer=opts.pgLayer; if(opts.pgType)l.pgType=opts.pgType; }
+  labels.push(l);
+  return el;
+}
+/* семантика связей: contains — «содержит», uses — «область использует сферу»,
+   reqkn / reqsk — «элемент требует знания / умения», related — «связано с»
+   по стандарту, influence — «влияет в учебном примере» */
+function setLinkKind(mat,kind,sphCol){
+  var c={contains:0x9fb8cc,uses:0xe8f6ff,related:0xa78bfa,influence:0xfbbf24,
+         reqkn:0x67e8f9,reqsk:0x9fd8ff}[kind]||0x9fb8cc;
+  if(kind==='contains')c=sphCol||0x9fb8cc;
+  mat.color.setHex(c); return c;
+}
+function mkLink(a,b,kind,sphCol){
+  var g=new THREE.BufferGeometry().setFromPoints([a,b]);
+  var mat=(kind==='contains'||kind==='uses')?new THREE.LineBasicMaterial({transparent:true,opacity:(kind==='uses'?.9:.85)})
+                            :new THREE.LineDashedMaterial({transparent:true,opacity:.95,dashSize:1.4,gapSize:.9});
+  setLinkKind(mat,kind,sphCol);
+  var l=new THREE.Line(g,mat); if(l.computeLineDistances)l.computeLineDistances();
+  l.visible=false; world.add(l);
+  var o={a:a.clone(),b:b.clone(),kind:kind,line:l,show:false};
+  links.push(o); return o;
+}
+function refreshLinks(){
+  links.forEach(function(l){
+    l.line.visible = !l.pgLayerHide && !!(l.show || (selected && (l.oa===selected.oid || l.ob===selected.oid)));
+  });
+}
+function linkEnds(o,ida,idb){o.oa=ida;o.ob=idb;}
+/* живые концы связи — функции, вызываемые каждый кадр (для движущихся объектов) */
+function linkDyn(o,fa,fb){o.fa=fa;o.fb=fb;}
+
+/* ============ вспомогательные формы ============ */
+function orb(r,col,e){
+  return new THREE.Mesh(new THREE.SphereGeometry(r,24,18),
+    new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:e==null?.35:e,roughness:.55,metalness:.15}));
+}
+function shell(r,col){
+  return new THREE.Mesh(new THREE.SphereGeometry(r,36,26),
+    new THREE.MeshStandardMaterial({color:col,transparent:true,opacity:.10,roughness:.9,metalness:0,side:THREE.DoubleSide,depthWrite:false}));
+}
+function ring(r1,r2,col,op){
+  var m=new THREE.Mesh(new THREE.TorusGeometry(r1,(r2>0?r2:.12),10,64),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op==null?.5:op}));
+  return m;
+}
+function halo(mesh,col){
+  var h=ring(mesh.geometry.parameters? (mesh.geometry.parameters.radius||1)*1.6 : 2,0,col,.0);
+  return h;
+}
+function beacon(r,col){
+  var m=new THREE.Mesh(new THREE.OctahedronGeometry(r,0),
+    new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:.5,roughness:.4}));
+  return m;
+}
+function box(w,h,d,col,e){
+  return new THREE.Mesh(new THREE.BoxGeometry(w,h,d),
+    new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:e||.18,roughness:.6}));
+}
+function person(col,h){
+  var g=new THREE.Group();
+  var body=new THREE.Mesh(new THREE.CylinderGeometry(.5,.7,(h||3)*.62,12),new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:.22,roughness:.6}));
+  body.position.y=(h||3)*.31;
+  var head=new THREE.Mesh(new THREE.SphereGeometry(.55,16,12),new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:.35,roughness:.5}));
+  head.position.y=(h||3)*.62+.65;
+  g.add(body);g.add(head); return g;
+}
+function curveTube(pts,col,radius,dash){
+  var cur=new THREE.CatmullRomCurve3(pts);
+  if(dash){
+    var g=new THREE.BufferGeometry().setFromPoints(cur.getPoints(80));
+    var l=new THREE.Line(g,new THREE.LineDashedMaterial({color:col,dashSize:.9,gapSize:.6,transparent:true,opacity:.95}));
+    l.computeLineDistances(); return l;
+  }
+  return new THREE.Mesh(new THREE.TubeGeometry(cur,80,radius||.16,8,false),
+    new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:.6,roughness:.4}));
+}
+
+/* мост для модуля галактики проектов (projects-galaxy.js) */
+window.UNI={
+  get world(){return world;},get labels(){return labels;},get links(){return links;},get markers(){return markers;},
+  get sphGrps(){return sphGrps;},get ORBITS(){return ORBITS;},get SUN_POS(){return SUN_POS;},
+  sphOrbitPos:function(sk,a,out){return sphOrbitPos(sk,a,out);},
+  reg:reg,addLabel:addLabel,mkLink:mkLink,linkEnds:linkEnds,refreshLinks:refreshLinks,
+  orb:orb,shell:shell,ring:ring,beacon:beacon,box:box,person:person,curveTube:curveTube,
+  fly:fly,compPosOf:compPosOf,CD:CD,setLevel:function(lv,a){setLevel(lv,a);},linkDyn:linkDyn
+};
+
+/* ============ уровни ============ */
+/* солнечная система: центр — область «Управление проектами» (domain).
+   Три сферы компетентности и словарь «Основы ICB» движутся по наклонным
+   орбитам разного радиуса; внешние — медленнее, как планеты */
+var SUN_POS=new THREE.Vector3(0,-4,0);
+var ORBITS={
+  context:{R:56,y0:8,i:.10,spd:.055,ph:.5},
+  people:{R:90,y0:0,i:-.07,spd:.038,ph:2.6},
+  practice:{R:124,y0:-9,i:.13,spd:.027,ph:4.7},
+  basics:{R:148,y0:12,i:-.09,spd:.023,ph:1.15}
+};
+var sphGrps={},sunGrp=null;
+function sphOrbitPos(sk,a,out){
+  var o=ORBITS[sk];
+  return out.set(SUN_POS.x+Math.cos(a)*o.R, SUN_POS.y+o.y0-Math.sin(a)*o.R*Math.sin(o.i), SUN_POS.z+Math.sin(a)*o.R*Math.cos(o.i));
+}
+function compOrbPos(c,i,n,spherePos){
+  /* фибоначчи по внутренней сфере */
+  var R=ORB_R, y=1-(i/(n-1))*2, rad=Math.sqrt(1-y*y), th=i*2.399963;
+  return new THREE.Vector3(spherePos[0]+Math.cos(th)*rad*R, spherePos[1]+y*R*.85, spherePos[2]+Math.sin(th)*rad*R);
+}
+function compPosOf(code){
+  var info=CD[code]; if(!info)return null;
+  var comps=COMPS.filter(function(c){return c[2]===info.sphere;});
+  var ci=0; comps.forEach(function(c,i){if(c[0]===code)ci=i;});
+  var g=sphGrps[info.sphere];
+  if(g)return g.position.clone().add(compOrbPos(code,ci,comps.length,[0,0,0]));
+  return compOrbPos(code,ci,comps.length,SPH[info.sphere].pos);
+}
+
+function buildUniverse(){
+  var t0=clock.getElapsedTime();
+  Object.keys(SPH).forEach(function(sk){
+    var s=SPH[sk],o=ORBITS[sk], gp=new THREE.Group();
+    /* видимое кольцо-орбита сферы */
+    var og=new THREE.Group(); og.position.set(SUN_POS.x,SUN_POS.y+o.y0,SUN_POS.z); og.rotation.x=o.i;
+    var tr=ring(o.R,.09,s.col,.2); tr.rotation.x=Math.PI/2; og.add(tr); world.add(og);
+    sphOrbitPos(sk,o.ph+(RM?0:t0*o.spd),gp.position); world.add(gp); sphGrps[sk]=gp;
+    var sh=shell(SHELL_R,s.col); gp.add(sh);
+    var wire=new THREE.Mesh(new THREE.SphereGeometry(SHELL_R,18,12),new THREE.MeshBasicMaterial({color:s.col,wireframe:true,transparent:true,opacity:.07}));
+    gp.add(wire);
+    var pl=new THREE.PointLight(s.col,.9,56); gp.add(pl);
+    var core=orb(1.6,s.col,.8); gp.add(core);
+    var hit=new THREE.Mesh(new THREE.SphereGeometry(SHELL_R+1,8,6),new THREE.MeshBasicMaterial({visible:false}));
+    gp.add(hit);
+    reg(hit,'sph-'+sk,{title:'Сфера «'+s.name+'»',code:s.code+' · '+s.en,css:s.css,typeNote:TYPENOTE.sph,
+      what:s.what,does:'Выберите элемент компетентности внутри сферы, чтобы погрузиться глубже: элемент → показатели → критерии.',
+      example:'В «Глазе компетентности» три сферы образуют вселенную из 28 элементов — все открыты для исследования.',
+      mistake:'Учить элементы списком без привязки к сфере — теряется структура стандарта.',
+      src:s.src});
+    addLabel(function(){return gp.position.clone();},'sph-'+sk,s.code+' '+s.name.toUpperCase(),s.en.toUpperCase(),s.css,{prio:0});
+    /* компетентности сферы — локальные координаты внутри группы */
+    var comps=COMPS.filter(function(c){return c[2]===sk;});
+    comps.forEach(function(c,ci){
+      var info=CD[c[0]], p=compOrbPos(c[0],ci,comps.length,[0,0,0]);
+      var m, d=DET[c[0]];
+      var nk=(d&&d.kpis)?d.kpis.length:0;
+      var er=info.na?1.1:(.6+nk*.35); /* размер шара ∝ количеству КПК внутри элемента */
+      if(info.na){ m=beacon(1.1,s.col); m.material.transparent=true;m.material.opacity=.22;m.material.emissiveIntensity=.05; }
+      else{ m=orb(er,s.col,.85);
+        if(d&&d.scene){ var r=ring(er*1.55,.1,s.col,.85); r.rotation.x=Math.PI/2.3; r.position.copy(p); gp.add(r); } }
+      m.position.copy(p); gp.add(m);
+      reg(m,'comp-'+info.code,compInfo(info));
+      var lk=mkLink(new THREE.Vector3(0,0,0),p,'contains',s.col); linkEnds(lk,'sph-'+sk,'comp-'+info.code); gp.add(lk.line);
+      addLabel(function(){var lp=m.position.clone();lp.y+=er+1.4;return gp.localToWorld(lp);},'comp-'+info.code,
+        info.code+' · '+info.name,
+        info.na?'не применимо к проектам':((d&&d.scene?'сцена · ':'')+nk+' КПК'),
+        s.css+(info.na?' ghost':''),{prio:2,occl:gp.position,maxDist:150});
+    });
+  });
+  /* связи «связано с» между реальными элементами — живые концы, видны при выборе */
+  var seenRel={};
+  COMPS.forEach(function(c){
+    var d=DET[c[0]]; if(!d)return;
+    d.related.forEach(function(rel){
+      var code=rel[0].split(' ')[0];
+      if(rel[0].indexOf('Все ')===0||!CD[code])return;
+      var key=[c[0],code].sort().join('|'); if(seenRel[key])return; seenRel[key]=1;
+      var pa=compPosOf(c[0]), pb=compPosOf(code); if(!pa||!pb)return;
+      var l=mkLink(pa,pb,'related',SPH[CD[c[0]].sphere].col); linkEnds(l,'comp-'+c[0],'comp-'+code);
+      linkDyn(l,function(){return compPosOf(c[0]);},function(){return compPosOf(code);});
+    });
+  });
+  /* центр системы — область «Управление проектами» (domain).
+     Три «uses»-связи к сферам видны всегда: они учат структуре
+     DOMAIN → COMPETENCE AREA */
+  var dg=new THREE.Group(); dg.position.copy(SUN_POS); world.add(dg); sunGrp=dg;
+  var dm=new THREE.Mesh(new THREE.IcosahedronGeometry(7.2,1),
+    new THREE.MeshStandardMaterial({color:0xffd9a3,emissive:0xffd9a3,emissiveIntensity:.5,roughness:.5,metalness:.1,flatShading:true}));
+  dm.userData.spin=1; dg.add(dm);
+  var dwire=new THREE.Mesh(new THREE.IcosahedronGeometry(10.5,1),
+    new THREE.MeshBasicMaterial({color:0xffd9a3,wireframe:true,transparent:true,opacity:.10}));
+  dg.add(dwire);
+  var dLight=new THREE.PointLight(0xffe2b0,.6,340); dg.add(dLight);
+  reg(dm,'dom-pm',{title:'Управление проектами',code:'ОБЛАСТЬ · PROJECT MANAGEMENT · 28 элементов',typeNote:TYPENOTE.dom,
+    what:DOMS[0].what,does:DOMS[0].does,example:DOMS[0].example,mistake:DOMS[0].mistake,src:DOMS[0].src});
+  addLabel(function(){return dg.position.clone().add(new THREE.Vector3(0,13,0));},'dom-pm','ОБЛАСТЬ · УПРАВЛЕНИЕ ПРОЕКТАМИ','DOMAIN · 28 ЭЛЕМЕНТОВ',null,{prio:0});
+  /* DOMAIN → COMPETENCE AREA: три луча от области к сферам, видны всегда */
+  Object.keys(SPH).forEach(function(sk){
+    var gp=sphGrps[sk]; if(!gp)return;
+    var l=mkLink(SUN_POS.clone(),gp.position.clone(),'uses'); linkEnds(l,'dom-pm','sph-'+sk);
+    l.show=true; l.line.visible=true;
+    linkDyn(l,function(){return dg.position.clone();},function(){return gp.position.clone();});
+  });
+  /* спутник «Основы ICB» — словарь стандарта на собственной орбите */
+  var bg=new THREE.Group(); sphOrbitPos('basics',ORBITS.basics.ph+(RM?0:t0*ORBITS.basics.spd),bg.position);
+  world.add(bg); sphGrps.basics=bg;
+  var bo=ORBITS.basics;
+  var bog=new THREE.Group(); bog.position.set(SUN_POS.x,SUN_POS.y+bo.y0,SUN_POS.z); bog.rotation.x=bo.i;
+  var btr=ring(bo.R,.09,0x9fb8cc,.18); btr.rotation.x=Math.PI/2; bog.add(btr); world.add(bog);
+  var bsh=shell(9,0x9fb8cc); bg.add(bsh);
+  var bw=new THREE.Mesh(new THREE.SphereGeometry(9,16,10),
+    new THREE.MeshBasicMaterial({color:0x9fb8cc,wireframe:true,transparent:true,opacity:.06}));
+  bg.add(bw);
+  CONCEPTS.forEach(function(cn,ci){ /* маленькие октаэдры внутри — намёк на словарь */
+    var a=ci/CONCEPTS.length*Math.PI*2;
+    var dm2=beacon(.55,0x9fb8cc); dm2.material.emissiveIntensity=.28;
+    dm2.position.set(Math.cos(a)*5.6,Math.sin(ci*1.9)*2.1,Math.sin(a)*5.6); bg.add(dm2);
+  });
+  var bhit=new THREE.Mesh(new THREE.SphereGeometry(10,8,6),new THREE.MeshBasicMaterial({visible:false}));
+  bg.add(bhit);
+  reg(bhit,'basics',{title:'Основы ICB — словарь стандарта',code:'§ 2–3, § 4.1 · 12 понятий',typeNote:TYPENOTE.concept,
+    what:'Справочный объект-онтология: компетентность, знания, умения и навыки, проект, программа, портфель, область, сфера, элемент, показатель, критерий и совершенствование.',
+    doesLabel:'Как пользоваться',does:'Откройте словарь — каждое понятие кликабельно и объяснено простым языком со ссылкой на страницы стандарта.',
+    example:'Неясно, чем КПК отличается от критерия? Загляните внутрь — там оба термина разведены.',
+    mistake:'Пропустить терминологию и путать «элемент компетентности» с «ключевым показателем».',
+    src:'ICB 4.0, § 2.1, 3.1–3.3, 4.1 — с. 19–36, 41'});
+  addLabel(function(){return bg.position.clone().add(new THREE.Vector3(0,11.4,0));},'basics','ОСНОВЫ ICB','СЛОВАРЬ · 12 ПОНЯТИЙ',null,{prio:0});
+  if(window.PGX)PGX.mini();
+}
+
+/* верхний уровень: ICB 4.0 → три области управления (domains).
+   Активна только «Управление проектами»; программы и портфели — призрачные. */
+function buildIcb(){
+  var c=new THREE.Vector3(0,-2,0);
+  var core=orb(6,0xe8f6ff,.5); core.position.copy(c); world.add(core);
+  var cw=new THREE.Mesh(new THREE.IcosahedronGeometry(8.6,1),
+    new THREE.MeshBasicMaterial({color:0x9fd8ff,wireframe:true,transparent:true,opacity:.12}));
+  cw.position.copy(c); world.add(cw);
+  var pl=new THREE.PointLight(0xcfe4ff,.9,160); pl.position.set(0,14,12); world.add(pl);
+  reg(core,'icb-root',{title:'ICB 4.0 — Individual Competence Baseline',code:'стандарт IPMA · две оси классификации',
+    what:'ICB4 описывает компетентность по двум осям: ОБЛАСТЬ — чем управляем (проектами, программами, портфелями) и СФЕРА — какой тип компетентности применяем (Контекст, Люди, Практика). Каждая сфера действует в каждой области.',
+    does:'Выберите область «Управление проектами» — внутри неё три сферы и 28 элементов компетентности.',
+    example:'Область отвечает на «чем управляем?», сфера — на «какой тип компетентности?». Элемент 4.4.9 «Переговоры» один и тот же во всех областях.',
+    mistake:'Путать ось: «Практика» — не область, а сфера; «управление проектами» — не сфера, а область.',
+    src:'ICB 4.0, § 3.1–3.3, с. 29–36'});
+  addLabel(function(){return c.clone().add(new THREE.Vector3(0,10.5,0));},'icb-root','ICB 4.0','ДВЕ ОСИ: ОБЛАСТЬ × СФЕРА',null,{prio:0});
+  DOMS.forEach(function(d,i){
+    var a=i/DOMS.length*Math.PI*2-Math.PI/2;
+    var p=new THREE.Vector3(Math.cos(a)*44,(i===1?7:i===2?-7:0),Math.sin(a)*44);
+    var m;
+    if(d.on){
+      m=new THREE.Mesh(new THREE.IcosahedronGeometry(5.4,1),
+        new THREE.MeshStandardMaterial({color:d.col,emissive:d.col,emissiveIntensity:.55,roughness:.5,flatShading:true}));
+      m.userData.spin=1;
+      var rr=ring(7.8,.14,d.col,.7); rr.rotation.x=Math.PI/2.5; rr.position.copy(p); world.add(rr);
+    }else{
+      m=new THREE.Mesh(new THREE.IcosahedronGeometry(4.4,0),
+        new THREE.MeshStandardMaterial({color:d.col,emissive:d.col,emissiveIntensity:.1,transparent:true,opacity:.32,roughness:.6}));
+    }
+    m.position.copy(p); world.add(m);
+    reg(m,'dom-'+d.id,{title:d.name,code:'ОБЛАСТЬ · '+d.en.toUpperCase()+(d.on?'':' · ПОЗЖЕ'),typeNote:TYPENOTE.dom,
+      what:d.what,does:d.does,example:d.example,mistake:d.mistake,src:d.src});
+    var lk=mkLink(c,p,'contains',d.on?d.col:0x5c7186); linkEnds(lk,'icb-root','dom-'+d.id); lk.show=true; lk.line.visible=true;
+    addLabel(function(){return m.position.clone().add(new THREE.Vector3(0,(d.on?8.6:6.4),0));},'dom-'+d.id,
+      d.name.toUpperCase(),'ОБЛАСТЬ · '+(d.on?'АКТИВНА · 28 ЭЛЕМЕНТОВ':'ТОМ '+(d.id==='prog'?'2':'3')+' · ПОЗЖЕ'),d.on?null:'ghost',{prio:d.on?0:1});
+  });
+  fly(.7,.32,120,c);
+}
+
+/* спутник-словарь: уровень «Основы ICB» — 12 понятий стандарта */
+function buildBasics(){
+  var c=new THREE.Vector3(0,0,0);
+  var sh=shell(23,0x9fb8cc); sh.position.copy(c); world.add(sh);
+  var wire=new THREE.Mesh(new THREE.SphereGeometry(23,18,12),
+    new THREE.MeshBasicMaterial({color:0x9fb8cc,wireframe:true,transparent:true,opacity:.06}));
+  wire.position.copy(c); world.add(wire);
+  var pl=new THREE.PointLight(0x9fb8cc,.8,70); pl.position.set(0,12,10); world.add(pl);
+  var core=orb(1.9,0x9fb8cc,.55); core.position.copy(c); world.add(core);
+  reg(core,'basics',{title:'Основы ICB — словарь стандарта',code:'§ 2–3, § 4.1 · 12 понятий',typeNote:TYPENOTE.concept,
+    what:'Справочный объект-онтология: компетентность, знания, умения и навыки, проект, программа, портфель, область, сфера, элемент, показатель, критерий и совершенствование.',
+    doesLabel:'Как пользоваться',does:'Каждое понятие кликабельно: определение, как это работает, пример и частая ошибка со ссылкой на страницы стандарта.',
+    example:'Неясно, чем КПК отличается от критерия? Откройте оба понятия — они разведены отдельно.',
+    mistake:'Пропустить терминологию и путать «элемент компетентности» с «ключевым показателем».',
+    src:'ICB 4.0, § 2.1, 3.1–3.3, 4.1 — с. 19–36, 41'});
+  addLabel(function(){return c.clone().add(new THREE.Vector3(0,4.6,0));},'basics','ОСНОВЫ ICB','СЛОВАРЬ · 12 ПОНЯТИЙ',null,{prio:0});
+  CONCEPTS.forEach(function(cn,ci){
+    var a=ci/CONCEPTS.length*Math.PI*2;
+    var R=ci%2?17.5:13.5;
+    var m=beacon(1.15,0x9fb8cc); m.material.emissiveIntensity=.3;
+    m.position.set(Math.cos(a)*R,Math.sin(ci*1.3)*4.4,Math.sin(a)*R); world.add(m);
+    reg(m,'concept-'+ci,{title:cn[0],code:'Понятие · '+cn[1],typeNote:TYPENOTE.concept,
+      what:cn[2],doesLabel:'Как это работает',does:cn[3],
+      example:cn[4],mistake:cn[5],src:'ICB 4.0, § 2–3, '+cn[1]});
+    var lk=mkLink(c,m.position.clone(),'contains',0x9fb8cc); linkEnds(lk,'basics','concept-'+ci); lk.show=true; lk.line.visible=true;
+    addLabel(function(){return m.position.clone().add(new THREE.Vector3(0,1.8,0));},'concept-'+ci,
+      cn[0].toUpperCase(),'понятие','',{prio:2,occl:c});
+  });
+  fly(null,.3,54,c);
+}
+
+function compInfo(c){
+  var s=SPH[c.sphere], d=DET[c.code];
+  if(c.na){
+    return {title:c.name,code:c.code+' · '+s.name,css:s.css,na:true,typeNote:TYPENOTE.comp,
+      what:'«Отбор и балансировка» описывает отбор и балансировку компонентов программ и портфелей. Для области управления проектами этот элемент помечен в стандарте как неприменимый.',
+      does:'Элемент действует в томах для программ и портфелей (ICB4, Том 2 и Том 3).',
+      example:'В таблице § 3.3 (с. 36) в колонке «Управление проектами» у этого элемента стоит «Неприменимо».',
+      mistake:'Включать его в подготовку к сертификации по проектам — он не входит в область.',
+      src:'ICB 4.0, § 3.3, с. 36'};
+  }
+  return {title:c.name,code:c.code+' · '+s.name,css:s.css,pilot:true,typeNote:TYPENOTE.comp,
+    what:d.def,does:d.does,example:d.example,mistake:d.mistake,
+    src:'ICB 4.0, § '+c.code+', с. '+c.page,
+    rel:d.related.map(function(r){return r[0];}),
+    enter:d.scene?'Исследовать сцену «'+c.name+'»':'Погрузиться в компетентность →',extra:d};
+}
+
+function buildSphere(sk){
+  var s=SPH[sk], sp=new THREE.Vector3(s.pos[0],s.pos[1],s.pos[2]);
+  var sh=shell(SHELL_R,s.col); sh.position.copy(sp); world.add(sh);
+  var pl=new THREE.PointLight(s.col,.8,56); pl.position.copy(sp); world.add(pl);
+  var comps=COMPS.filter(function(c){return c[2]===sk;});
+  comps.forEach(function(c,ci){
+    var info=CD[c[0]], p=compOrbPos(c[0],ci,comps.length,s.pos);
+    var m, d=DET[c[0]];
+    var nk=(d&&d.kpis)?d.kpis.length:0;
+    var er=info.na?1.2:(.65+nk*.35); /* размер шара ∝ количеству КПК */
+    if(info.na){m=beacon(1.2,s.col);m.material.transparent=true;m.material.opacity=.25;m.material.emissiveIntensity=.06;}
+    else{m=orb(er,s.col,.9);}
+    m.position.copy(p); world.add(m);
+    reg(m,'comp-'+info.code,compInfo(info));
+    var lk=mkLink(sp,p,'contains',s.col); linkEnds(lk,'sph-'+sk,'comp-'+info.code); lk.show=true; lk.line.visible=true;
+    addLabel(function(){return m.position.clone().add(new THREE.Vector3(0,er+1.2,0));},'comp-'+info.code,
+      info.code+' · '+info.name, info.na?'не применимо к проектам':((d&&d.scene?'СЦЕНА · ':'')+nk+' КПК'), s.css+(info.na?' ghost':''),{prio:1,occl:sp});
+    /* связи с реальными элементами — видны только при выборе */
+    if(d){
+      d.related.forEach(function(rel,ri){
+        if(rel[0].indexOf('Все ')===0)return;
+        var code=rel[0].split(' ')[0]; if(!CD[code]||CD[code].sphere!==sk)return;
+        var p2=compPosOf(code); if(!p2)return;
+        var l2=mkLink(p,p2,'related',s.col); linkEnds(l2,'comp-'+info.code,'comp-'+code);
+      });
+    }
+  });
+  fly(null,.22,36,sp);
+}
+
+function buildComp(code){
+  var info=CD[code], s=SPH[info.sphere], d=DET[code];
+  var comps=COMPS.filter(function(c){return c[2]===info.sphere;});
+  var base=compOrbPos(code,comps.findIndex(function(c){return c[0]===code;}),comps.length,s.pos);
+  var cx=base.x,cy=base.y,cz=base.z;
+  var pl=new THREE.PointLight(s.col,1,60); pl.position.set(cx,cy+6,cz); world.add(pl);
+  /* центральный объект компетентности */
+  var core=orb(2.2,s.col,.9); core.position.set(cx,cy,cz); world.add(core);
+  var cr=ring(3.4,.12,s.col,.7); cr.rotation.x=Math.PI/2.4; cr.position.set(cx,cy,cz); world.add(cr);
+  reg(core,'comp-'+code,compInfo(info));
+  addLabel(function(){return core.position.clone().add(new THREE.Vector3(0,2.6,0));},'comp-'+code,code+' '+info.name.toUpperCase(),'ЭЛЕМЕНТ КОМПЕТЕНТНОСТИ',s.css,{prio:0});
+  /* КПК кольцом */
+  var R=8.6;
+  d.kpis.forEach(function(k,i){
+    var a=i/d.kpis.length*Math.PI*2-Math.PI/2;
+    var p=new THREE.Vector3(cx+Math.cos(a)*R,cy+Math.sin(a*.9)*1.2,cz+Math.sin(a)*R);
+    var m=box(1.9,1.9,1.9,s.col,.3); m.position.copy(p); m.rotation.set(.4,.6,0); m.userData.spin=1; world.add(m);
+    reg(m,'kpi-'+k.code,{title:k.name,code:k.code+' · ключевой показатель',css:s.css,typeNote:TYPENOTE.kpi,
+      what:k.desc,does:k.crit,example:k.example,mistake:k.mistake,
+      src:'ICB 4.0, § '+k.code+', '+k.page});
+    var lk=mkLink(new THREE.Vector3(cx,cy,cz),p,'contains',s.col); linkEnds(lk,'comp-'+code,'kpi-'+k.code); lk.show=true; lk.line.visible=true;
+    addLabel(function(){return m.position.clone().add(new THREE.Vector3(0,1.6,0));},'kpi-'+k.code,k.code,k.name.length>34?k.name.slice(0,33)+'…':k.name,s.css,{prio:2});
+  });
+  /* кластеры знаний и навыков */
+  function cluster(items,label,off,idpre){
+    var n=items.length, cols=Math.ceil(Math.sqrt(n)), gp=new THREE.Group();
+    items.forEach(function(it,i){
+      var m=new THREE.Mesh(new THREE.IcosahedronGeometry(.62,0),
+        new THREE.MeshStandardMaterial({color:0x9fb8cc,emissive:0x9fb8cc,emissiveIntensity:.12,roughness:.5,transparent:true,opacity:.9}));
+      m.position.set((i%cols)*1.7,-Math.floor(i/cols)*1.7,(i%2)*1.2);
+      gp.add(m);
+      reg(m,idpre+'-'+i,{title:it[0],code:label,css:s.css,typeNote:(idpre==='kn'?TYPENOTE.kn:TYPENOTE.sk),
+        what:it[1]||'Позиция из перечня «'+label.toLowerCase()+'» элемента '+code+'. В стандарте перечень дан списком — как область, которой нужно владеть.',
+        does:'Относится к группе «'+label+'» элемента '+code+'.',
+        example:'Элемент знания/навыка из стандарта — воспроизведите его смысл в режиме «Память».',
+        mistake:'Зазубрить список без понимания, где он применяется.',
+        src:'ICB 4.0, § '+code+', с. '+info.page});
+    });
+    gp.position.set(cx+off[0],cy+off[1]+(cols? n/cols*.8:0),cz+off[2]);
+    world.add(gp);
+    var anchor=new THREE.Vector3().copy(gp.position); markers[idpre]=anchor;
+    var lk=mkLink(new THREE.Vector3(cx,cy,cz),anchor,idpre==='kn'?'reqkn':'reqsk',s.col); linkEnds(lk,'comp-'+code,idpre+'-0'); lk.show=true; lk.line.visible=true;
+    addLabel(function(){return markers[idpre].clone().add(new THREE.Vector3(0,1.6,0));},idpre+'-0',label,n+' позиций',s.css,{prio:1});
+    return gp;
+  }
+  cluster(d.knowledge,'ЗНАНИЯ',[-13,4,-2],'kn');
+  cluster(d.skills,'УМЕНИЯ И НАВЫКИ',[13,4,-2],'sk');
+  fly(null,.28,26,new THREE.Vector3(cx,cy,cz));
+}
+
+/* ============ СЦЕНЫ ============ */
+function groundGrid(w,col){
+  var g=new THREE.Group();
+  var gh=new THREE.GridHelper(w,20,0x22344e,0x16233a); gh.material.transparent=true;gh.material.opacity=.5; g.add(gh);
+  return g;
+}
+function labelAt(v,id,t,s,cls){var v2=v.clone();addLabel(function(){return v2;},id,t,s,cls);}
+
+/* --- СЦЕНА «СТРАТЕГИЯ» --- */
+function sceneStrategy(){
+  var Z=new THREE.Group(); world.add(Z);
+  Z.add(groundGrid(80));
+  var col=SPH.context.col;
+  var pl=new THREE.PointLight(0x9fd8ff,.7,90); pl.position.set(0,20,14); world.add(pl);
+  var used=false; /* флаг: организация использует продукт */
+
+  /* организация (слева) — ядро: миссия+видение, орбита: стратегические цели */
+  var org=new THREE.Group(); org.position.set(-30,3,0); Z.add(org);
+  var osh=shell(9,col); org.add(osh);
+  var miss=orb(1.7,0xe8f6ff,.9); org.add(miss);
+  reg(miss,'s-miss',{title:'Миссия и видение',code:'4.3.1.1 · с. 45',css:'ctx',
+    what:'Миссия — предназначение организации; видение — образ желаемого будущего. Цели и выгоды проекта должны соответствовать им на протяжении всего проекта.',
+    does:['Учитывает миссию и видение','Согласует цели проекта с миссией и стратегией','Проверяет выгоды на соответствие целям организации'],
+    example:'Формулировка цели проекта ссылается на пункт стратегии, а не на «хотелки» спонсора.',
+    mistake:'Проверить соответствие миссии один раз на старте и забыть.',
+    src:'ICB 4.0, § 4.3.1.1, с. 45'});
+  var goals=[];
+  for(var i=0;i<3;i++){
+    var a=i/3*Math.PI*2;
+    var g=beacon(1.05,col); g.position.set(Math.cos(a)*5.4,1.5+i*.8,Math.sin(a)*5.4); org.add(g); goals.push(g);
+    reg(g,'s-goal-'+i,{title:'Стратегическая цель '+(i+1),code:'4.3.1 · с. 44',css:'ctx',
+      what:'Стратегические цели — декомпозиция видения: организация разбивает их на управляемые элементы (программы и проекты).',
+      does:['Разбивает стратегические цели на управляемые элементы','Отбирает проекты в портфель по вкладу в цели'],
+      example:'Цель «+20% повторных продаж» порождает проект CRM и программу лояльности.',
+      mistake:'Запускать проекты, которые не привязаны ни к одной стратегической цели.',
+      src:'ICB 4.0, § 4.3.1, с. 44'});
+    var lk=mkLink(org.position.clone(),org.position.clone().add(g.position),'contains',col);linkEnds(lk,'s-miss','s-goal-'+i);lk.show=true;lk.line.visible=true;
+  }
+  addLabel(function(){return org.position.clone().add(new THREE.Vector3(0,10,0));},'s-miss','ОРГАНИЗАЦИЯ','миссия · видение · стратегические цели','ctx');
+
+  /* проект — движущийся объект */
+  var proj=new THREE.Group(); Z.add(proj);
+  var hull=box(2.6,1.4,1.4,0xd8e6f2,.25); proj.add(hull);
+  var nose=new THREE.Mesh(new THREE.ConeGeometry(.8,1.6,10),new THREE.MeshStandardMaterial({color:0xd8e6f2,emissive:0xd8e6f2,emissiveIntensity:.3}));
+  nose.rotation.z=-Math.PI/2; nose.position.x=2; proj.add(nose);
+  proj.position.set(-16,3,0);
+  reg(proj,'s-proj',{title:'Проект',code:'4.3.1 · с. 44–46',css:'ctx',
+    what:'Проект — управляемый элемент, через который стратегия реализуется. Запускается по формальному Обоснованию проекта и отбирается в портфель по вкладу в цели.',
+    does:['Поддерживает обоснование проекта актуальным','Проверяет элементы проекта на избыточность и несоответствие стратегии','При утрате стратегического значения предлагает остановить проект'],
+    example:'Обоснование CRM-проекта перепроверяется каждый квартал — жива ли ещё выгода.',
+    mistake:'«Дожимать» проект, потерявший стратегический смысл, потому что «уже вложились».',
+    src:'ICB 4.0, § 4.3.1.3, с. 46'});
+  addLabel(function(){return proj.position.clone().add(new THREE.Vector3(0,2.4,0));},'s-proj','ПРОЕКТ','обоснование · конфигурация','ctx');
+
+  /* цепочка ценности: продукт → использование → выгода */
+  var prod=box(2.6,2.6,2.6,0x7fd4c8,.3); prod.position.set(-2,3,0); Z.add(prod);
+  reg(prod,'s-prod',{title:'Продукт (результат проекта)',code:'связь: результат → выгода',css:'ctx',
+    what:'Проект поставляет продукт. Но сам по себе продукт не гарантирует пользу — между «сдали» и «получили выгоду» стоит использование.',
+    does:['Управляет реализацией выгод','Следит, чтобы конфигурация проекта давала желаемые результаты'],
+    example:'CRM развёрнута и передана — продукт есть.',
+    mistake:'Отчитаться «продукт сдан» и считать проект успешным.',
+    src:'ICB 4.0, § 4.3.1.1/4.3.1.3, с. 45–46'});
+  addLabel(function(){return prod.position.clone().add(new THREE.Vector3(0,2.6,0));},'s-prod','ПРОДУКТ','результат проекта','ctx');
+
+  var use=new THREE.Mesh(new THREE.TorusGeometry(2.2,.35,12,40),new THREE.MeshStandardMaterial({color:0x9fd8ff,emissive:0x9fd8ff,emissiveIntensity:.45,roughness:.4}));
+  use.position.set(7,3,0); use.rotation.y=Math.PI/2; Z.add(use);
+  reg(use,'s-use',{title:'Использование (внедрение)',code:'управление выгодами · с. 44',css:'ctx',
+    what:'Выгода появляется только когда продукт реально используют и меняют процессы. Управление реализацией выгод — отдельная забота после сдачи продукта.',
+    does:['Обеспечивает внедрение результата в работу организации','Переобучает пользователей, перестраивает процессы'],
+    example:'Продажи реально ведутся в CRM, старые таблицы отключены.',
+    mistake:'«Сдать и уйти»: продукт есть, процесс не изменился — выгоды нет.',
+    src:'ICB 4.0, § 4.3.1, с. 44 (управление выгодами)'});
+  addLabel(function(){return use.position.clone().add(new THREE.Vector3(0,3,0));},'s-use','ИСПОЛЬЗОВАНИЕ','внедрение в работу','ctx');
+
+  var ben=orb(1.9,0xffe08a,1); ben.position.set(17,3,0); Z.add(ben);
+  var br=ring(3,.1,0xffe08a,.7); br.rotation.x=Math.PI/2.2; br.position.copy(ben.position); Z.add(br);
+  reg(ben,'s-ben',{title:'Выгода для организации',code:'4.3.1.1 · с. 45',css:'ctx',
+    what:'Выгода — измеримый вклад в цели организации. Реализация выгод — причина существования проекта; ради неё ведётся управление конфигурацией и КФУ/КПЭ.',
+    does:['Следит за реализацией выгод','Согласует выгоды с целями организации','Пересматривает конфигурацию проекта ради выгоды'],
+    example:'Повторные продажи выросли на 14% — выгода подтверждена КПЭ.',
+    mistake:'Путать продукт и выгоду: «система работает» ≠ «организации лучше».',
+    src:'ICB 4.0, § 4.3.1.1, с. 45'});
+  addLabel(function(){return ben.position.clone().add(new THREE.Vector3(0,3,0));},'s-ben','ВЫГОДА','вклад в цели организации','ctx');
+
+  /* КФУ — врата, КПЭ — спутники-шкалы */
+  var csf=new THREE.Mesh(new THREE.OctahedronGeometry(1.5,0),new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:.5,wireframe:true}));
+  csf.position.set(7,8.5,0); Z.add(csf);
+  reg(csf,'s-csf',{title:'Критический фактор успеха (КФУ)',code:'4.3.1.4 · с. 47',css:'ctx',
+    what:'КФУ — условие, без которого цель не будет достигнута. Здесь: «пользователи приняли систему». КФУ напрямую связаны с целями организации и проекта, их важность пересматривается.',
+    does:['Разрабатывает и приоритизирует КФУ','Вовлекает команду в анализ КФУ','Пересматривает КФУ при изменении контекста'],
+    example:'КФУ «принятие пользователями» важнее КФУ «срок разработки» — без первого второе бессмысленно.',
+    mistake:'Назвать критическими 15 факторов — внимание размывается.',
+    src:'ICB 4.0, § 4.3.1.4, с. 47'});
+  addLabel(function(){return csf.position.clone().add(new THREE.Vector3(0,2.2,0));},'s-csf','КФУ','условие: принятие пользователями','ctx');
+
+  var kpiG=new THREE.Group(); kpiG.position.set(17,8.5,0); Z.add(kpiG);
+  var kpiA=box(1.1,3.4,1.1,0xffe08a,.4); kpiA.position.x=-2.6; kpiG.add(kpiA);
+  var kpiB=box(1.1,2.2,1.1,0xffe08a,.4); kpiB.position.x=0; kpiB.position.y=-.6; kpiG.add(kpiB);
+  var kpiC=box(1.1,1.4,1.1,0x93a7b8,.15); kpiC.position.x=2.6; kpiC.position.y=-1; kpiG.add(kpiC);
+  reg(kpiA,'s-kpi',{title:'Ключевые показатели эффективности (КПЭ)',code:'4.3.1.5 · с. 47–48',css:'ctx',
+    what:'КПЭ измеряют достижение каждого КФУ. Бывают опережающие (до события), отложенные (после) и текущие. Набор КПЭ пересматривается по ходу проекта.',
+    does:['Разрабатывает КПЭ для каждого КФУ','Выбирает тип показателя: опережающий / отложенный / текущий','Использует КПЭ для управления эффективностью и стимулов'],
+    example:'Опережающий КПЭ — доля активных пользователей пилота; отложенный — рост повторных продаж.',
+    mistake:'Мерить только «в срок/в бюджет» — это метрики продукта, не выгоды.',
+    src:'ICB 4.0, § 4.3.1.5, с. 47–48'});
+  addLabel(function(){return kpiG.position.clone().add(new THREE.Vector3(0,2.4,0));},'s-kpi','КПЭ','опережающие · текущие · отложенные','ctx');
+
+  /* связи цепочки */
+  var l1=mkLink(new THREE.Vector3(-24,3,0),new THREE.Vector3(-3.4,3,0),'influence');linkEnds(l1,'s-proj','s-prod');l1.show=true;l1.line.visible=true;
+  var l2=mkLink(new THREE.Vector3(-.6,3,0),new THREE.Vector3(4.8,3,0),'influence');linkEnds(l2,'s-prod','s-use');l2.show=true;l2.line.visible=true;
+  var l3=mkLink(new THREE.Vector3(9.2,3,0),new THREE.Vector3(15,3,0),'influence');linkEnds(l3,'s-use','s-ben');l3.show=true;l3.line.visible=true;
+  var l4=mkLink(csf.position.clone(),use.position.clone(),'contains',col);linkEnds(l4,'s-csf','s-use');l4.show=true;l4.line.visible=true;
+  var l5=mkLink(kpiG.position.clone(),ben.position.clone(),'contains',col);linkEnds(l5,'s-kpi','s-ben');l5.show=true;l5.line.visible=true;
+  var l6=mkLink(new THREE.Vector3(-30,3,0),new THREE.Vector3(-18.5,3,0),'influence');linkEnds(l6,'s-miss','s-proj');l6.show=true;l6.line.visible=true;
+
+  /* ситуация: продукт сдан, но не используется */
+  var bar=document.getElementById('scenebar');
+  bar.querySelector('.sit').innerHTML='<b>Учебная ситуация (авторский пример):</b> продукт сдан в срок и принят. Но пользователи продолжают работать по-старому — внедрения нет. Промоделируйте:';
+  var row=bar.querySelector('.row'); row.innerHTML='';
+  var out=bar.querySelector('.out'); out.className='out';
+  bar.querySelector('.note').textContent='Числа и последствия — учебная модель, а не универсальный закон. Стандарт: § 4.3.1.1, 4.3.1.3, с. 45–46.';
+  var b1=document.createElement('button'); b1.textContent='Смоделировать: продукт есть, использования нет';
+  var b2=document.createElement('button'); b2.textContent='Сбросить сцену';
+  row.appendChild(b1);row.appendChild(b2);
+  b1.onclick=function(){
+    l3.line.material.color.setHex(0xf87171);
+    ben.material.emissiveIntensity=.06; ben.material.color.setHex(0x6b7280);
+    kpiA.material.color.setHex(0x93a7b8);kpiA.material.emissive.setHex(0x93a7b8);
+    out.innerHTML='Цепочка разорвана на «Использовании»: связь с выгодой красная, звезда выгоды потухла, опережающий КПЭ просел. <b>Продукт ≠ выгода</b> — именно поэтому стандарт требует управлять реализацией выгод и пересматривать конфигурацию проекта (§ 4.3.1.3).';
+    out.className='out show'; b1.disabled=true;
+  };
+  b2.onclick=function(){
+    l3.line.material.color.setHex(0xfbbf24);
+    ben.material.emissiveIntensity=1; ben.material.color.setHex(0xffe08a);
+    kpiA.material.color.setHex(0xffe08a);kpiA.material.emissive.setHex(0xffe08a);
+    out.className='out';b1.disabled=false;
+  };
+  markers.cam=new THREE.Vector3(-4,4,0);
+  fly(null,.3,52,markers.cam);
+}
+
+/* --- СЦЕНА «ЛИДЕРСТВО» --- */
+function sceneLeadership(){
+  var Z=new THREE.Group(); world.add(Z);
+  Z.add(groundGrid(70));
+  var col=SPH.people.col;
+  var pl=new THREE.PointLight(0xc9b8ff,.8,80); pl.position.set(0,16,10); world.add(pl);
+  var members=[],trustLines=[];
+  /* общее направление — луч вперёд */
+  var dir=new THREE.Group(); Z.add(dir);
+  var beam=curveTube([new THREE.Vector3(0,2,4),new THREE.Vector3(0,3,-8),new THREE.Vector3(0,4,-20)],0xc9b8ff,.12);
+  dir.add(beam);
+  var tip=new THREE.Mesh(new THREE.ConeGeometry(.8,2,10),new THREE.MeshStandardMaterial({color:0xc9b8ff,emissive:0xc9b8ff,emissiveIntensity:.7}));
+  tip.position.set(0,4,-20); tip.rotation.x=-Math.PI/2; dir.add(tip);
+  var dirV=new THREE.Vector3(0,4,-16);
+  addLabel(function(){return dirV;},'l-dir','ОБЩЕЕ НАПРАВЛЕНИЕ','видение и цели проекта','ppl');
+  infoReg['l-dir']={title:'Общее направление',code:'4.4.5.3 · с. 81–82',css:'ppl',
+    what:'Лидер формирует видение, определяет ценности и согласовывает цели отдельных людей с общими целями проекта.',
+    does:['Формирует видение и ценности','Согласовывает личные цели с общими','Показывает, как достигнуть целей'],
+    example:'Каждый член команды может объяснить, чем его задача приближает цель проекта.',
+    mistake:'Задавать задачи без направления: люди заняты, но не идут к цели.',
+    src:'ICB 4.0, § 4.4.5.3, с. 81–82'};
+  /* лидер */
+  var leader=person(0xe9d5ff,4.4); leader.position.set(0,0,5); Z.add(leader);
+  reg(leader,'l-leader',{title:'Лидер проекта',code:'4.4.5 · с. 80',css:'ppl',
+    what:'Лидер задаёт направление и ведёт за собой — часто личным примером. Лидерство ≠ должность: профессионал лидирует и перед командой, и перед высшим руководством и сторонами.',
+    does:['Выбирает стиль лидерства под ситуацию','Проявляет инициативу и берёт ответственность','Направляет, коучирует и наставляет'],
+    example:'На старте — директивные рамки, в стабильной фазе — делегирование и коучинг.',
+    mistake:'«Я руководитель — значит, лидер». За должностью следуют формально, за лидером — по выбору.',
+    src:'ICB 4.0, § 4.4.5, с. 80'});
+  addLabel(function(){return leader.position.clone().add(new THREE.Vector3(0,4.6,0));},'l-leader','ЛИДЕР','не должность — поведение','ppl');
+  /* команда */
+  var roles=['Аналитик','Разработчик','Тестировщик','Дизайнер','Спонсор-представитель'];
+  for(var i=0;i<5;i++){
+    var a=Math.PI*0.15+i*(Math.PI*2/5);
+    var p=person(0xa78bfa,3); p.position.set(Math.cos(a)*7,0,Math.sin(a)*7-2); Z.add(p); members.push(p);
+    (function(p,i){
+      reg(p,'l-m-'+i,{title:roles[i],code:'команда · 4.4.5',css:'ppl',
+        what:'Член команды со своими целями, мотивацией и ожиданиями. Лидер понимает потребности коллег и влияет на них независимо от формальной подчинённости.',
+        does:['Понимает потребности людей','Поощряет высказывать мнение до решения','Согласовывает личные цели с общими'],
+        example:roles[i]+' предлагает улучшение процесса — лидер слушает и взвешивает.',
+        mistake:'Видеть в людях только «ресурс» — мотивация и инициатива гаснут.',
+        src:'ICB 4.0, § 4.4.5.4–4.4.5.5, с. 82–83'});
+      var lp=p.position.clone().add(new THREE.Vector3(0,4.2,0));
+      addLabel(function(){return lp;},'l-m-'+i,roles[i].toUpperCase(),'','ppl');
+    })(p,i);
+    var tl=mkLink(leader.position.clone().add(new THREE.Vector3(0,2,0)),p.position.clone().add(new THREE.Vector3(0,2,0)),'related',col);
+    linkEnds(tl,'l-leader','l-m-'+i); tl.show=true; tl.line.visible=true; trustLines.push(tl);
+  }
+  var trV=new THREE.Vector3(4.5,3.2,1);
+  addLabel(function(){return trV;},'l-trust','ДОВЕРИЕ','связи лидер ↔ команда','ppl');
+  infoReg['l-trust']={title:'Доверие и взаимодействие',code:'4.4.5 · с. 80–82',css:'ppl',
+    what:'Доверие строится последовательностью действий, личным примером и вовлечением людей в решения. Открытое использование власти вызывает сопротивление.',
+    does:['Демонстрирует ценности личным примером','Поощряет мнения до принятия решения','Выбирает средство влияния под ситуацию'],
+    example:'Лидер сначала выслушивает, потом решает — и объясняет основания.',
+    mistake:'Постоянно давить властью — связи доверия тускнеют.',
+    src:'ICB 4.0, § 4.4.5.4–4.4.5.5, с. 82–83'};
+
+  /* учебная ситуация */
+  var bar=document.getElementById('scenebar');
+  bar.querySelector('.sit').innerHTML='<b>Ситуация (авторский пример):</b> за день до демонстрации заказчику опытный разработчик предлагает переписать нестабильный модуль. Рискованно, но текущее решение его «не устраивает». Действие лидера:';
+  var row=bar.querySelector('.row'); row.innerHTML='';
+  var out=bar.querySelector('.out'); out.className='out';
+  bar.querySelector('.note').textContent='Последствия — учебная модель к показателям 4.4.5.1–4.4.5.5, а не универсальный закон.';
+  function trust(v){ trustLines.forEach(function(t){ t.line.material.color.setHex(v?0xa78bfa:0xf87171); t.line.material.opacity=v?.8:.35; }); }
+  function memberGlow(i,ok){ members[i].children.forEach(function(m){m.material.emissive.setHex(ok?0x34d399:0xf87171);m.material.emissiveIntensity=ok?.5:.4;}); }
+  function resetMembers(){ members.forEach(function(p){p.children.forEach(function(m){m.material.emissive.setHex(0xa78bfa);m.material.emissiveIntensity=.25;});}); }
+  var ch=[
+    ['А. Запретить: «решение принято, работаем»',function(){
+      trust(false); memberGlow(1,false);
+      return 'Демонстрация состоится — краткосрочный выигрыш. Но инициатива разработчика наказана: связь доверия тускнеет, в следующий раз он промолчит о реальной проблеме. Противоречит 4.4.5.1 (инициатива) и 4.4.5.5 (мнение до решения).';}],
+    ['Б. 15 минут: выслушать, оценить риск, решить вместе',function(){
+      trust(true); memberGlow(1,true);
+      return 'Риск оценен фактами: переделку переносят в следующую итерацию с отдельным прототипом. Разработчик услышан, решение объяснено — доверие растёт. Соответствует 4.4.5.3 (коучинг), 4.4.5.5 (решения на фактах).';}],
+    ['В. Отложить без обсуждения: «вернёмся потом»',function(){
+      trust(false); memberGlow(1,false); memberGlow(0,false);
+      return 'Проблема не решена и «повисла»: на демонстрации модуль падает (в примере). Непринятое решение — тоже решение; противоречит 4.4.5.2 (ответственность) и 4.4.5.5 (своевременность).';}]
+  ];
+  function mkChoices(){
+    row.innerHTML='';
+    ch.forEach(function(c){
+      var b=document.createElement('button'); b.textContent=c[0];
+      b.onclick=function(){ out.innerHTML=c[1](); out.className='out show';
+        row.querySelectorAll('button').forEach(function(x){x.disabled=true;});
+        var rst=document.createElement('button'); rst.textContent='Сбросить ситуацию';
+        rst.disabled=false;
+        rst.onclick=function(){trust(true);resetMembers();out.className='out';mkChoices();};
+        row.appendChild(rst); };
+      row.appendChild(b);
+    });
+  }
+  mkChoices();
+  markers.cam=new THREE.Vector3(0,2,-2);
+  fly(null,.34,40,markers.cam);
+}
+
+/* --- СЦЕНА «ПЛАНИРОВАНИЕ И КОНТРОЛЬ» --- */
+function scenePlanning(){
+  var Z=new THREE.Group(); world.add(Z);
+  Z.add(groundGrid(80));
+  var col=SPH.practice.col;
+  var pl=new THREE.PointLight(0xffdf9e,.8,90); pl.position.set(0,18,10); world.add(pl);
+
+  /* цикл Деминга — большое кольцо сзади */
+  var pdca=new THREE.Group(); pdca.position.set(0,11,-16); Z.add(pdca);
+  var names=['ПЛАНИРОВАНИЕ','ВЫПОЛНЕНИЕ','МОНИТОРИНГ','КОРРЕКТИРОВКА'];
+  for(var i=0;i<4;i++){
+    var arc=new THREE.Mesh(new THREE.TorusGeometry(10,.3,8,24,Math.PI/2-.14),
+      new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:.35,roughness:.5}));
+    arc.rotation.z=i*Math.PI/2+.07; pdca.add(arc);
+    var aa=i*Math.PI/2+Math.PI/4;
+    var v=new THREE.Vector3(pdca.position.x+Math.cos(aa)*10,pdca.position.y+Math.sin(aa)*10,pdca.position.z);
+    (function(v,i){addLabel(function(){return v;},'p-pdca-'+i,names[i],'цикл Деминга','prc');})(v,i);
+    infoReg['p-pdca-'+i]={title:'Шаг цикла: '+names[i].charAt(0)+names[i].slice(1).toLowerCase(),code:'PDCA · с. 140',css:'prc',
+      what:'Базовый циклический процесс по стандарту: планирование → выполнение → мониторинг → корректировка плана или корректировка выполнения (цикл Деминга, PDCA).',
+      does:['Поддерживает цикл на каждой фазе проекта','Регулярно обновляет план с учётом изменений'],
+      example:'Еженедельный цикл: план недели → работа → контрольная точка → корректировка.',
+      mistake:'Пройти цикл один раз — контроль существует только как повторяющийся цикл.',
+      src:'ICB 4.0, § 4.5.10, с. 140; цикл Деминга'};
+  }
+  pdca.rotation.x=.28;
+
+  /* базовый план — бирюзовая линия через вехи */
+  var planPts=[new THREE.Vector3(-26,2,8),new THREE.Vector3(-10,2,6),new THREE.Vector3(6,2,4),new THREE.Vector3(22,2,2),new THREE.Vector3(34,2,0)];
+  var plan=curveTube(planPts,0x7fd4c8,.14); Z.add(plan);
+  var factPts=[new THREE.Vector3(-26,2,8),new THREE.Vector3(-10,2,6),new THREE.Vector3(4,2,-1),new THREE.Vector3(14,2,-6)];
+  var fact=curveTube(factPts,0xfbbf24,.18); Z.add(fact);
+  var forecast=curveTube([factPts[3],new THREE.Vector3(24,2,-8),new THREE.Vector3(34,2,-9)],0xfbbf24,.1,true); Z.add(forecast);
+
+  var MS=['M1 · запуск','M2 · дизайн','M3 · сборка','M4 · передача'];
+  var gates=[];
+  [planPts[0],planPts[1],planPts[2],planPts[4]].forEach(function(p,i){
+    var g=new THREE.Mesh(new THREE.TorusGeometry(2.2,.3,10,32),new THREE.MeshStandardMaterial({color:0x7fd4c8,emissive:0x7fd4c8,emissiveIntensity:.4}));
+    g.position.copy(p); g.rotation.y=Math.PI/2; Z.add(g); gates.push(g);
+    (function(g,i){reg(g,'p-ms-'+i,{title:'Веха '+MS[i],code:'4.5.10.1/.2 · с. 141–142',css:'prc',
+      what:'Вехи и переходы между фазами — точки, где цели и планы подтверждаются или изменяются, обновляются календарный план, риски и выгоды.',
+      does:['Определяет цели следующей фазы','Управляет переходом от фазы к фазе','Проводит стартовое совещание'],
+      example:'На M2 подтверждается дизайн и обновляется детальный план сборки.',
+      mistake:'Проходить вехи «по инерции» без решения о продолжении.',
+      src:'ICB 4.0, § 4.5.10.1–4.5.10.2, с. 141–142'});})(g,i);
+    var lv=p.clone().add(new THREE.Vector3(0,3,0));
+    (function(lv,i){addLabel(function(){return lv;},'p-ms-'+i,MS[i],i===0?'план: базовая линия':'','prc');})(lv,i);
+  });
+
+  addLabel(function(){return new THREE.Vector3(-10,4.2,6);},'p-plan','БАЗОВЫЙ ПЛАН','плановая траектория','prc');
+  infoReg['p-plan']={title:'Базовый план',code:'4.5.10.1 · с. 141',css:'prc',
+    what:'Согласованный и утверждённый план управления проектом — эталон для контроля. Изменяется только через формальный процесс управления изменениями.',
+    does:['Разрабатывает и согласовывает план управления','Сохраняет базовый план как эталон сравнения'],
+    example:'План утверждён на стартовом совещании и хранится как базовая линия.',
+    mistake:'Переписывать план под факт «чтобы сходилось» — контроль теряет эталон.',
+    src:'ICB 4.0, § 4.5.10.1, с. 141'};
+  addLabel(function(){return factPts[2].clone().add(new THREE.Vector3(0,2.4,0));},'p-fact','ФАКТ','фактическая траектория','prc');
+  infoReg['p-fact']={title:'Фактическое выполнение',code:'4.5.10.3 · с. 142–143',css:'prc',
+    what:'Измеренный прогресс: результаты, сроки, стоимость, ресурсы. Сравнивается с базовым планом на каждой контрольной точке.',
+    does:['Измеряет выполнение и прогресс','Определяет цикл контроля','Сравнивает факт с базовым планом'],
+    example:'Еженедельно фиксируются сделанные объёмы и фактические затраты.',
+    mistake:'Собирать факт, но не сравнивать с базой — данные без контроля.',
+    src:'ICB 4.0, § 4.5.10.3, с. 142–143'};
+
+  /* маяк отклонения */
+  var dev=orb(1.1,0xfbbf24,.8); dev.position.set(10,6,-3); Z.add(dev);
+  var devLink=mkLink(planPts[2].clone().add(new THREE.Vector3(0,1,0)),dev.position,'influence');devLink.oa='p-dev';devLink.ob='p-fact';devLink.show=true;devLink.line.visible=true;
+  reg(dev,'p-dev',{title:'Отклонение от базового плана',code:'4.5.10.3 · с. 142–143',css:'prc',
+    what:'Разница между фактом и базовым планом. Диагностический контроль — работа по отклонениям; при большой неопределённости — интерактивный контроль через обратную связь команды.',
+    does:['Выявляет отклонения','Определяет пороги эскалации','Планирует корректирующие действия'],
+    example:'Срыв M3 на 2 недели — отклонение за порогом «жёлтой зоны».',
+    mistake:'Замечать отклонение, но не искать причину — действие будет наугад.',
+    src:'ICB 4.0, § 4.5.10.3, с. 142–143'});
+  addLabel(function(){return dev.position.clone().add(new THREE.Vector3(0,2,0));},'p-dev','ОТКЛОНЕНИЕ','факт vs базовый план','prc');
+
+  /* причины */
+  var causes=[
+    ['p-c-res','Ресурсы','ключевой разработчик ушёл в другой проект',[-2,8,-10],'4.5.8 Ресурсы'],
+    ['p-c-req','Требования','заказчик добавил 3 новых требования',[10,8,-13],'4.5.2 Требования и цели'],
+    ['p-c-risk','Риск','материализовался риск задержки поставки',[22,8,-8],'4.5.11 Риски и возможности']];
+  causes.forEach(function(c){
+    var m=beacon(.9,0xf87171); m.material.emissiveIntensity=.5; m.position.set(c[3][0],c[3][1],c[3][2]); Z.add(m);
+    reg(m,c[0],{title:'Причина: '+c[1],code:'учебный пример · '+c[4],css:'prc',
+      what:'Авторский пример причины отклонения: '+c[2]+'. Стандарт требует исследовать причины, а не только констатировать срыв.',
+      does:['Анализирует причины отклонения','Оценивает влияние на результаты, расписание, стоимость и риски'],
+      example:'Причина найдена — теперь можно выбирать корректирующее действие.',
+      mistake:'Лечить симптом (добавить людей), когда причина — новые требования.',
+      src:'Учебный пример; связь с '+c[4]+' — по перечню связанных элементов § 4.5.10, с. 141'});
+    addLabel(function(){return m.position.clone().add(new THREE.Vector3(0,1.8,0));},c[0],c[1].toUpperCase(),'причина','prc');
+    var lk=mkLink(m.position.clone(),dev.position,'influence');lk.oa=c[0];lk.ob='p-dev';lk.show=true;lk.line.visible=true;
+  });
+
+  /* решения */
+  var bar=document.getElementById('scenebar');
+  bar.querySelector('.sit').innerHTML='<b>Ситуация (авторский пример):</b> на контрольной точке M3 факт ушёл ниже плана: срыв 2 недели, прогноз — финиш без выгоды в срок. Исследуйте причины (красные маркеры) и выберите действие:';
+  var row=bar.querySelector('.row'); row.innerHTML='';
+  var out=bar.querySelector('.out'); out.className='out';
+  bar.querySelector('.note').textContent='Числа и последствия — учебная модель. Стандарт: § 4.5.10.3 (контроль), 4.5.10.5 (управление изменениями), с. 142–143.';
+  var opts=[
+    ['Обновить план через управление изменениями',function(){
+      forecast.material.color.setHex(0x34d399);
+      return 'Запрос на изменение оценён (сроки +2 недели, бюджет +8%), одобрен комитетом, базовый план обновлён — прогноз снова честный и управляемый. Это § 4.5.10.5: формальный процесс вместо «втихую».';}],
+    ['Добавить ресурсы и удержать план',function(){
+      forecast.material.color.setHex(0xfbbf24);
+      return 'Компромисс: срок удержан, но выросла стоимость и риск онбординга. Законное действие — если причина действительно в ресурсах, а не в новых требованиях: иначе лечится симптом.';}],
+    ['Ничего не менять — «сами догонят»',function(){
+      dev.material.color.setHex(0xf87171); dev.material.emissive.setHex(0xf87171);
+      forecast.material.color.setHex(0xf87171);
+      return 'Отклонение растёт, прогноз уходит в красную зону: без решения по причинам факт не вернётся к плану. Стандарт требует корректирующих действий — § 4.5.10.3.';}]
+  ];
+  opts.forEach(function(o){
+    var b=document.createElement('button'); b.textContent=o[0];
+    b.onclick=function(){ out.innerHTML=o[1](); out.className='out show'; };
+    row.appendChild(b);
+  });
+  markers.cam=new THREE.Vector3(2,4,-4);
+  fly(null,.42,54,markers.cam);
+}
+
+/* ============ уровни: диспетчер ============ */
+function setLevel(lv,arg){
+  L.level=lv;
+  if(lv==='icb'){L.sphere=null;L.comp=null;L.sceneKind=null;L.project=null;}
+  if(lv==='universe'){L.sphere=null;L.comp=null;L.sceneKind=null;L.project=null;}
+  if(lv==='basics'){L.sphere=null;L.comp=null;L.sceneKind=null;L.project=null;}
+  if(lv==='sphere'){L.sphere=arg;L.comp=null;L.sceneKind=null;L.project=null;}
+  if(lv==='comp'){L.comp=arg;L.sphere=CD[arg].sphere;L.sceneKind=null;L.project=null;}
+  if(lv==='scene'){L.sceneKind=arg;}
+  if(lv==='pgalaxy'){L.sphere=null;L.comp=null;L.sceneKind=null;L.project=null;}
+  if(lv==='project'){L.project=arg;L.sphere=null;L.comp=null;L.sceneKind=null;}
+  clearWorld();
+  var sb=document.getElementById('scenebar'); sb.classList.remove('open');
+  document.getElementById('projbar').classList.remove('open');
+  if(lv==='icb'){buildIcb();}
+  else if(lv==='universe'){buildUniverse();fly(.62,.3,285,SUN_POS.clone());}
+  else if(lv==='basics'){buildBasics();}
+  else if(lv==='sphere'){buildSphere(arg);}
+  else if(lv==='comp'){buildComp(arg);}
+  else if(lv==='pgalaxy'){PGX.buildGalaxy();}
+  else if(lv==='project'){PGX.buildProject(arg);}
+  else if(lv==='scene'){
+    sb.classList.add('open');
+    if(arg==='strategy')sceneStrategy();
+    else if(arg==='leadership')sceneLeadership();
+    else scenePlanning();
+  }
+  updateChrome(); savePos(); newRecallTask(); renderStruct();
+}
+function savePos(){ saved.pos={l:L.level,s:L.sphere,c:L.comp,k:L.sceneKind,pr:L.level==='pgalaxy'?'*':L.project}; persist(); }
+
+/* ============ шапка, панель ============ */
+var crumbs=document.getElementById('crumbs');
+function updateChrome(){
+  var h='<span class="prompt">icb:~</span>';
+  function crumb(label,fn,here){h+='<span class="sep">/</span><button data-go="'+fn+'" class="'+(here?'here':'')+'" title="Перейти: '+label+'">'+label+'</button>';}
+  crumb('icb-4.0','i',L.level==='icb');
+  if(L.level!=='icb')crumb('pm','u',L.level==='universe');
+  if(L.level==='basics')crumb('основы-icb','b',true);
+  if(L.sphere)crumb(SPH[L.sphere].name.toLowerCase(),'s',L.level==='sphere');
+  if(L.comp)crumb(L.comp,'c',L.level==='comp');
+  if(L.sceneKind)crumb('сцена','k',true);
+  if(L.level==='pgalaxy'||L.level==='project')crumb('учебные-проекты','g',L.level==='pgalaxy');
+  if(L.project){var pp=PROJX.projects.filter(function(x){return x.id===L.project;})[0];crumb(pp?(pp.short||pp.name):L.project,'pr',true);}
+  crumbs.innerHTML=h;
+  crumbs.querySelectorAll('button').forEach(function(b){
+    b.onclick=function(){
+      var g=b.dataset.go;
+      if(g==='i')setLevel('icb');
+      else if(g==='u')setLevel('universe');
+      else if(g==='b')setLevel('basics');
+      else if(g==='s')setLevel('sphere',L.sphere);
+      else if(g==='c')setLevel('comp',L.comp);
+      else if(g==='g')setLevel('pgalaxy');
+    };
+  });
+}
+document.getElementById('b-home').onclick=function(){setLevel('icb');};
+document.getElementById('b-back').onclick=function(){goBack();};
+function goBack(){
+  if(L.level==='scene')setLevel('comp',L.comp);
+  else if(L.level==='comp')setLevel('sphere',L.sphere);
+  else if(L.level==='sphere')setLevel('universe');
+  else if(L.level==='basics')setLevel('universe');
+  else if(L.level==='project')setLevel('pgalaxy');
+  else if(L.level==='pgalaxy')setLevel('universe');
+  else if(L.level==='universe')setLevel('icb');
+  else closePanel();
+}
+addEventListener('keydown',function(e){ if(e.key!=='Escape')return; if(document.getElementById('tutor').classList.contains('open')){closeTutor();return;} if(document.getElementById('sres').classList.contains('open')){closeSearch();return;} var sk=document.getElementById('shapekey'); if(sk.classList.contains('open')){sk.classList.remove('open');document.getElementById('keybtn').classList.remove('on');return;} if(structEl.classList.contains('open')){structEl.classList.remove('open');return;} goBack(); });
+
+var panel=document.getElementById('panel'),pbody=document.getElementById('pbody');
+function closePanel(){panel.classList.remove('open');}
+document.getElementById('pclose').onclick=closePanel;
+/* панель: ширина по тяге за левый край + развёртывание, сохраняется */
+var pedge=document.getElementById('pedge'),pexpand=document.getElementById('pexpand');
+function applyPanelSize(){
+  panel.classList.toggle('expanded',!!saved.pexp);
+  pexpand.textContent=saved.pexp?'⤡':'⤢';
+  pexpand.title=saved.pexp?'Свернуть':'Развернуть на весь экран';
+  pexpand.setAttribute('aria-label',saved.pexp?'Свернуть':'Развернуть');
+  if(innerWidth<=760){panel.style.width='';return;}
+  panel.style.width=saved.pexp?'':Math.max(300,Math.min(innerWidth*.92,(saved.pw||400)))+'px';
+}
+pexpand.onclick=function(){saved.pexp=!saved.pexp;applyPanelSize();persist();};
+(function(){var drag=null;
+  pedge.addEventListener('pointerdown',function(e){
+    if(innerWidth<=760||saved.pexp)return;
+    drag={x:e.clientX,w:panel.getBoundingClientRect().width};
+    panel.classList.add('resizing');pedge.setPointerCapture(e.pointerId);e.preventDefault();});
+  pedge.addEventListener('pointermove',function(e){
+    if(!drag)return;
+    saved.pw=Math.max(300,Math.min(innerWidth*.92,drag.w+drag.x-e.clientX));
+    panel.style.width=saved.pw+'px';});
+  function stop(e){if(!drag)return;drag=null;panel.classList.remove('resizing');persist();}
+  pedge.addEventListener('pointerup',stop);pedge.addEventListener('pointercancel',stop);})();
+addEventListener('resize',function(){if(!saved.pexp&&saved.pw)applyPanelSize();});
+applyPanelSize();
+function showInfo(id,inf){
+  var h='<span class="code '+(inf.css||'')+'">'+(inf.code||'')+'</span><h2>'+inf.title+'</h2>';
+  if(inf.typeNote)h+='<p class="typenote">'+inf.typeNote+'</p>';
+  h+='<h3>Что это'+(inf.na?'':'<span class="badge std">стандарт</span>')+'</h3><p>'+inf.what+'</p>';
+  if(inf.does&&inf.does!=='—'){
+    h+='<h3>'+(inf.doesLabel||'Что делает руководитель')+(inf.na?'':'<span class="badge std">стандарт</span>')+'</h3>';
+    if(Array.isArray(inf.does)){h+='<ul>'+inf.does.map(function(d){return '<li>'+gloss(d)+'</li>';}).join('')+'</ul>';}
+    else h+='<p>'+gloss(inf.does)+'</p>';
+  }
+  if(inf.example&&inf.example!=='—')h+='<h3>Пример<span class="badge auth">авторское</span></h3><p>'+gloss(inf.example)+'</p>';
+  if(inf.mistake&&inf.mistake!=='—')h+='<h3>Частая ошибка<span class="badge auth">авторское</span></h3><p>'+gloss(inf.mistake)+'</p>';
+  if(inf.rel&&inf.rel.length)h+='<h3>Связанные элементы<span class="badge std">стандарт</span></h3><ul>'+inf.rel.map(function(r){return '<li>'+r+'</li>';}).join('')+'</ul>';
+  if(window.PGX&&id.indexOf('comp-')===0)h+=PGX.icbBlock(id.slice(5));
+  if(window.VIZLAYER)h+=VIZLAYER.render(id,inf,{DET:DET,CD:CD,SPH:SPH,comp:L.comp});
+  if(window.VIZLAYER&&VIZLAYER.examples)h+=VIZLAYER.examples(id,inf,{DET:DET,CD:CD,SPH:SPH,comp:L.comp});
+  if(inf.extra)h+=inf.extra;
+  h+='<div class="src">Источник: '+inf.src+'</div>';
+  var dive=null;
+  if(id==='dom-pm'&&L.level==='icb')dive={t:'Открыть область «Управление проектами» →',fn:function(){setLevel('universe');}};
+  if(id==='basics'&&L.level==='universe')dive={t:'Открыть словарь «Основы ICB» →',fn:function(){setLevel('basics');}};
+  if(id.indexOf('sph-')===0&&L.level==='universe')dive={t:'Войти в сферу «'+SPH[id.slice(4)].name+'» →',fn:function(){setLevel('sphere',id.slice(4));}};
+  if(id==='pgal'&&L.level==='universe')dive={t:'Войти в галактику «Учебные проекты» →',fn:function(){setLevel('pgalaxy');}};
+  if(id.indexOf('prj-')===0&&L.level!=='project')dive={t:'Открыть модель проекта →',fn:function(){setLevel('project',id.slice(4));}};
+  if(id.indexOf('comp-')===0){
+    var cc=id.slice(5);
+    if(L.level!=='comp'&&L.level!=='scene'&&CD[cc]&&DET[cc])dive={t:'Погрузиться в компетентность →',fn:function(){setLevel('comp',cc);}};
+    else if(L.level==='comp'&&cc===L.comp&&DET[cc]&&DET[cc].scene)dive={t:'Исследовать сцену «'+CD[cc].name+'» →',fn:function(){setLevel('scene',DET[cc].scene);}};
+  }
+  if(dive)h+='<button class="pbtn" id="p-dive">'+dive.t+'</button>';
+  pbody.innerHTML=h; panel.classList.add('open');
+  var pd=document.getElementById('p-dive');
+  if(pd&&dive)pd.onclick=dive.fn;
+}
+function gloss(s){
+  return s.replace(/\b(КФУ|КПЭ|КПК|PDCA|PMO|EVM|ССП|ICB|ИСР|BATNA)\b/g,function(w){return T(w);});
+}
+/* тултипы */
+var tip=document.getElementById('tip');
+document.addEventListener('mouseover',function(e){
+  var t=e.target.closest('.term'); if(!t)return;
+  tip.textContent=GLOSS[t.dataset.term]||t.dataset.term; tip.style.display='block';
+  var r=t.getBoundingClientRect();
+  tip.style.left=Math.min(innerWidth-290,r.left)+'px'; tip.style.top=(r.bottom+8)+'px';
+});
+document.addEventListener('click',function(e){
+  var t=e.target.closest('.term');
+  if(!t){tip.style.display='none';return;}
+  tip.textContent=GLOSS[t.dataset.term]||t.dataset.term; tip.style.display='block';
+  var r=t.getBoundingClientRect();
+  tip.style.left=Math.min(innerWidth-290,r.left)+'px'; tip.style.top=(r.bottom+8)+'px';
+});
+document.addEventListener('mouseout',function(e){ if(e.target.closest&&e.target.closest('.term'))tip.style.display='none'; });
+/* визуальный образ: переключатели «до/после» и клики по точкам */
+pbody.addEventListener('click',function(e){
+  var b=e.target.closest('.viz-tgl');
+  if(b){var v=b.closest('.viz');v.dataset.st=(v.dataset.st==='b'?'a':'b');
+    b.textContent=v.dataset.st==='b'?b.dataset.lb:b.dataset.la;return;}
+  var n=e.target.closest('[data-vn]');
+  if(n){var vz=n.closest('.viz'),note=vz&&vz.querySelector('.viz-note');
+    if(note)note.textContent=n.getAttribute('data-vn');}
+  var toP=e.target.closest('[data-toprj]');
+  if(toP){setLevel('project',toP.dataset.toprj);return;}
+  var toC=e.target.closest('[data-toicb]');
+  if(toC){setLevel('comp',toC.dataset.toicb);setTimeout(function(){pickId('comp-'+toC.dataset.toicb);},60);return;}
+});
+
+/* ============ выбор объектов ============ */
+var rayc=new THREE.Raycaster(), mouse=new THREE.Vector2();
+var hlRing=null;
+function pick(x,y){
+  mouse.set(x/innerWidth*2-1,-(y/innerHeight)*2+1);
+  rayc.setFromCamera(mouse,camera);
+  var hits=rayc.intersectObjects(pickables,true);
+  /* элементы внутри сферы приоритетнее её невидимого хитбокса */
+  var o=null,fb=null;
+  for(var i=0;i<hits.length;i++){
+    var t=hits[i].object; while(t&&!t.userData.oid)t=t.parent;
+    if(!t)continue; if(window.PGX&&PGX.hidden.has(t.userData.oid))continue; if(!fb)fb=t;
+    var oid=t.userData.oid;
+    if(oid.indexOf('sph-')!==0&&oid!=='pgal'&&oid.indexOf('-scope')<0){o=t;break;}
+  }
+  o=o||fb;
+  if(o)pickId(o.userData.oid);
+  else {selected=null;refreshLinks();closePanel();}
+}
+function pickId(id){
+  if(L.recall){recallAnswer(id);return;}
+  var inf=infoReg[id]; if(!inf)return;
+  /* повторный клик по выбранному — погружение */
+  if(selected&&selected.oid===id){
+    if(id==='dom-pm'&&L.level==='icb'){setLevel('universe');return;}
+    if(id==='basics'&&L.level==='universe'){setLevel('basics');return;}
+    if(id.indexOf('sph-')===0){setLevel('sphere',id.slice(4));return;}
+    if(id==='pgal'&&L.level==='universe'){setLevel('pgalaxy');return;}
+    if(id.indexOf('prj-')===0&&L.level!=='project'){setLevel('project',id.slice(4));return;}
+    if(id.indexOf('comp-')===0){var c=id.slice(5);if(DET[c]){setLevel('comp',c);return;}}
+  }
+  selected={oid:id}; refreshLinks(); showInfo(id,inf);
+  labels.forEach(function(l){l.el.classList.toggle('hot',l.id===id);});
+  saved.seen[id]=1; persist();
+}
+
+/* ============ поиск по вселенной ============ */
+/* индекс строится один раз из тех же данных, что рисуют сцену:
+   области, сферы, элементы, КПК, знания/навыки, понятия словаря,
+   объекты учебных сцен и все сущности проектов из PROJX */
+var SIDX=null, sRes=document.getElementById('sres'), sIn=document.getElementById('srchin'), sList=[], sAct=-1;
+var SSYN={ /* аббревиатуры и частые псевдонимы → ключевые слова индекса */
+ 'кфу':'критическ фактор успеха','кпэ':'ключев показател эффективност','кпк':'ключев показател компетентн',
+ 'ку':'критери успеха','kpi':'метрик показател измерител','иср':'иерархическ структур работ','wbs':'иерархическ структур работ декомпозиц',
+ 'pdca':'деминг цикл планировани выполнени проверк корректиров','evm':'освоенн объём','ссп':'сбалансированн систем показател',
+ 'pmo':'офис управлени проектом','batna':'альтернатив соглашени','pm':'руководител проект','рп':'руководител проект',
+ 'аутком':'outcome использовани','бенефит':'выгод','домен':'область domain','домэйн':'область domain'};
+var AXIK={need:'потребность бизнеса',goal:'цель проекта',result:'результат / продукт',
+ outcome:'использование (outcome)',benefit:'выгода',value:'стратегическая ценность'};
+var SCENE_IDX=[
+ {t:'Миссия и видение организации',arg:'strategy',oid:'s-miss',hay:'миссия видение стратегия организация 4.3.1.1'},
+ {t:'Стратегическая цель',arg:'strategy',oid:'s-goal-0',hay:'стратегическ цель цели организации декомпозиц'},
+ {t:'Проект и обоснование',arg:'strategy',oid:'s-proj',hay:'проект обоснование конфигурац запуск отбор портфель'},
+ {t:'Продукт / результат проекта',arg:'strategy',oid:'s-prod',hay:'продукт результат поставк сдан'},
+ {t:'Использование (внедрение)',arg:'strategy',oid:'s-use',hay:'использовани внедрени outcome пользовател процесс'},
+ {t:'Выгода для организации',arg:'strategy',oid:'s-ben',hay:'выгода benefit цель организации кпэ'},
+ {t:'КФУ — критический фактор успеха',arg:'strategy',oid:'s-csf',hay:'кфу критическ фактор успеха услови приняти пользовател'},
+ {t:'КПЭ — ключевые показатели эффективности',arg:'strategy',oid:'s-kpi',hay:'кпэ ключев показател эффективност опережающ отложенн текущ'},
+ {t:'Лидер проекта',arg:'leadership',oid:'l-leader',hay:'лидер лидерство руководител стиль 4.4.5'},
+ {t:'Общее направление (луч)',arg:'leadership',oid:'l-dir',hay:'направлени видени цель команда лидерство'},
+ {t:'Доверие и взаимодействие',arg:'leadership',oid:'l-trust',hay:'довери взаимодействи команда связ лидерство'},
+ {t:'Аналитик — член команды',arg:'leadership',oid:'l-m-0',hay:'аналитик команда роль лидерство'},
+ {t:'Разработчик — член команды',arg:'leadership',oid:'l-m-1',hay:'разработчик команда роль лидерство'},
+ {t:'Тестировщик — член команды',arg:'leadership',oid:'l-m-2',hay:'тестировщик команда роль лидерство'},
+ {t:'Базовый план',arg:'planning',oid:'p-plan',hay:'базов план траектори вехи планировани контрол'},
+ {t:'Фактическое выполнение',arg:'planning',oid:'p-fact',hay:'фактическ выполнени факт ход проекта'},
+ {t:'Отклонение от плана',arg:'planning',oid:'p-dev',hay:'отклонени план факт вариаци контрол'},
+ {t:'Веха M1 · запуск',arg:'planning',oid:'p-ms-0',hay:'веха m1 запуск контрольн точк'},
+ {t:'Веха M4 · передача',arg:'planning',oid:'p-ms-3',hay:'веха m4 передача закрыти контрольн точк'},
+ {t:'Цикл PDCA (Деминга)',arg:'planning',oid:'p-pdca-0',hay:'pdca деминг цикл планировани выполнени проверк корректиров'}];
+var SCENE_NM={strategy:'Сцена «Стратегия» · 4.3.1',leadership:'Сцена «Лидерство» · 4.4.5',planning:'Сцена «Планирование и контроль» · 4.5.10'};
+
+function buildSidx(){
+  if(SIDX)return; var idx=[];
+  function push(o){o.hay=(o.t+' '+o.ty+' '+(o.hay||'')).toLowerCase();o.b=(o.b==null?2:o.b);idx.push(o);}
+  push({t:'ICB 4.0 — Individual Competence Baseline',ty:'стандарт',path:'ICB 4.0',lv:'icb',oid:'icb-root',b:5,
+    hay:'ipma icb стандарт компетентность baseline две оси область сфера'});
+  DOMS.forEach(function(d){push({t:d.name+(d.on?'':' · позже'),ty:'область · domain',path:'ICB 4.0',lv:'icb',oid:'dom-'+d.id,b:5,
+    hay:d.en+' domain область том '+d.what+' '+d.does});});
+  Object.keys(SPH).forEach(function(sk){var s=SPH[sk];
+    push({t:'Сфера «'+s.name+'»',ty:'сфера · area',path:'Управление проектами',lv:'universe',oid:'sph-'+sk,b:5,
+      hay:s.en+' '+s.code+' сфера '+s.name+' '+s.what});});
+  push({t:'Основы ICB — словарь стандарта',ty:'словарь',path:'Управление проектами',lv:'basics',oid:'basics',b:4,
+    hay:'словарь термины понятия онтология основы'});
+  CONCEPTS.forEach(function(cn,ci){push({t:cn[0],ty:'понятие',path:'Основы ICB › словарь',lv:'basics',oid:'concept-'+ci,b:4,
+    hay:cn.slice(2).join(' ')});});
+  COMPS.forEach(function(c){
+    var code=c[0],d=DET[code],s=SPH[c[2]],pp='Управление проектами › '+s.name;
+    var hay=code+' '+c[1]+' элемент компетентности '+(c[4]==='na'?'не применимо отбор балансировка ':'');
+    if(d)hay+=' '+[d.def,d.purpose||'',d.does,d.example,d.mistake].join(' ')+' '+
+      d.knowledge.map(function(k){return k[0];}).join(' ')+' '+d.skills.map(function(k){return k[0];}).join(' ')+' '+
+      d.related.map(function(r){return r[0];}).join(' ');
+    push({t:code+' · '+c[1],ty:'элемент',path:pp,lv:'comp',arg:code,oid:'comp-'+code,b:5,hay:hay});
+    if(!d)return;
+    d.kpis.forEach(function(k){
+      push({t:k.code+' · '+k.name,ty:'КПК',path:pp+' › '+code+' '+c[1],lv:'comp',arg:code,oid:'kpi-'+k.code,b:4,
+        hay:k.code+' '+k.name+' кпк ключевой показатель '+k.desc+' '+(k.crit||[]).join(' ')+' '+(k.example||'')+' '+(k.mistake||'')});});
+    d.knowledge.forEach(function(kn,i){
+      push({t:kn[0],ty:'знание',path:pp+' › '+code+' › Знания',lv:'comp',arg:code,oid:'kn-'+i,b:1,hay:kn.join(' ')+' знание'});});
+    d.skills.forEach(function(skn,i){
+      push({t:skn[0],ty:'умение · навык',path:pp+' › '+code+' › Умения и навыки',lv:'comp',arg:code,oid:'sk-'+i,b:1,hay:skn.join(' ')+' умение навык'});});
+  });
+  SCENE_IDX.forEach(function(x){push({t:x.t,ty:'объект сцены',path:SCENE_NM[x.arg],lv:'scene',arg:x.arg,oid:x.oid,b:3,hay:x.hay});});
+  if(window.PROJX){
+    push({t:'Галактика «Учебные проекты»',ty:'галактика',path:'Управление проектами',lv:'pgalaxy',oid:'pgal',b:5,
+      hay:'учебные проекты демо практика планеты галактика'});
+    PROJX.projects.forEach(function(p){
+      var pp='Учебные проекты › '+p.short;
+      push({t:p.name,ty:'проект',path:'Учебные проекты',lv:'pgalaxy',oid:'prj-'+p.id,b:5,
+        hay:[p.name,p.short,p.role,p.org,p.type,p.period,p.budget,p.lesson||'',p.note||''].join(' ')+' проект планета'});
+      p.axis.forEach(function(a){
+        push({t:a.x.length>70?a.x.slice(0,68)+'…':a.x,ty:'ось · '+AXIK[a.id],path:pp+' › причинная ось',lv:'project',arg:p.id,oid:'pe-'+p.id+'-ax-'+a.id,b:3,
+          hay:a.x+' '+AXIK[a.id]+' ось'});});
+      push({t:'Граница проекта (scope)',ty:'граница',path:pp,lv:'project',arg:p.id,oid:'pe-'+p.id+'-scope',b:3,
+        hay:'граница проекта scope внутри снаружи зона поставки ответственность'});
+      (p.scopeIn||[]).forEach(function(s,i){push({t:s,ty:'внутри границы',path:pp+' › граница',lv:'project',arg:p.id,oid:'pe-'+p.id+'-sin-'+i,b:1,hay:s+' внутри границы scope'});});
+      (p.scopeOut||[]).forEach(function(s,i){push({t:s,ty:'за границей',path:pp+' › граница',lv:'project',arg:p.id,oid:'pe-'+p.id+'-sout-'+i,b:1,hay:s+' снаружи за границей scope'});});
+      (p.csf||[]).forEach(function(f,i){
+        push({t:f.t,ty:'КФУ',path:pp+' › условия успеха',lv:'project',arg:p.id,oid:'pe-'+p.id+'-csf-'+i,b:3,
+          hay:f.t+' '+(f.why||'')+' '+(f.own||'')+' '+(f.pm||'')+' кфу критический фактор успеха '+(f.ctrl?'под контролем':'вне прямого контроля')});});
+      (p.sc||[]).forEach(function(s,i){push({t:s.t,ty:'критерий успеха',path:pp+' › критерии',lv:'project',arg:p.id,oid:'pe-'+p.id+'-sc-'+i,b:2,hay:s.t+' критерий успеха приёмка'});});
+      (p.metrics||[]).forEach(function(m,i){push({t:m.t+' — '+m.v,ty:'KPI · метрика',path:pp+' › измерители',lv:'project',arg:p.id,oid:'pe-'+p.id+'-m-'+i,b:2,hay:m.t+' '+m.v+' kpi метрика показатель измеритель'});});
+      (p.reqs||[]).forEach(function(r,i){push({t:r.t,ty:'требование',path:pp+' › требования',lv:'project',arg:p.id,oid:'pe-'+p.id+'-req-'+i,b:1,hay:r.t+' требование'});});
+      (p.risks||[]).forEach(function(r,i){push({t:r.t,ty:'риск',path:pp+' › риски',lv:'project',arg:p.id,oid:'pe-'+p.id+'-rk-'+i,b:3,hay:r.t+' риск '+(r.strat||'')+' '+(r.own||'')+' вероятность влияние'});});
+      (p.field||[]).forEach(function(f,i){push({t:f.t,ty:f.k||'условие',path:pp+' › поле условий',lv:'project',arg:p.id,oid:'pe-'+p.id+'-dep-'+i,b:1,hay:f.t+' '+(f.k||'')+' зависимость ограничение допущение'});});
+      (p.owners||[]).forEach(function(o,i){push({t:o.who+' — '+o.what,ty:'владелец',path:pp+' › владельцы',lv:'project',arg:p.id,oid:'pe-'+p.id+'-own-'+i,b:2,hay:o.who+' '+o.what+' владелец роль ответственный стейкхолдер'});});
+    });
+  }
+  SIDX=idx;
+}
+function sesc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function smark(t,words){
+  var h=sesc(t);
+  words.forEach(function(w){if(w.length<2)return;
+    h=h.replace(new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');});
+  return h;
+}
+function styCls(e){ /* цвет бейджа типа в результатах — семантическая карта */
+  var ty=e.ty;
+  if(ty==='стандарт')return 'ty-std';
+  if(ty.indexOf('область')===0)return 'ty-dom';
+  if(ty.indexOf('сфера')===0){var sk=(e.oid||'').slice(4);return 'ty-area '+(sk==='ppl'?'ppl':sk==='prc'?'prc':'');}
+  if(ty==='элемент')return 'ty-el';
+  if(ty==='КПК')return 'ty-kci';
+  if(ty==='знание'||ty==='умение · навык')return 'ty-know';
+  if(ty==='понятие'||ty==='словарь')return 'ty-concept';
+  if(ty==='объект сцены'||ty==='владелец')return 'ty-scene';
+  if(ty==='галактика')return 'ty-gal';
+  if(ty==='проект'||ty.indexOf('ось')===0)return 'ty-prj';
+  if(ty==='КФУ')return 'ty-csf';
+  if(ty==='риск')return 'ty-risk';
+  if(ty==='критерий успеха')return 'ty-kci';
+  if(ty.indexOf('KPI')===0)return 'ty-kpi';
+  if(ty==='граница'||ty==='внутри границы'||ty==='за границей'||ty==='требование')return 'ty-scope';
+  return 'ty-misc';
+}
+function sHit(e,w){ /* слово ищется в индексе; аббревиатуры разворачиваются в ключевые слова */
+  if(e.hay.indexOf(w)>=0)return e.t.toLowerCase().indexOf(w)>=0?2:1;
+  var s=SSYN[w]; if(!s)return 0;
+  var ok=s.split(' ').every(function(x){return e.hay.indexOf(x)>=0;}); return ok?1:0;
+}
+function runSearch(){
+  var q=sIn.value.trim().toLowerCase();
+  if(q.length<2){sRes.classList.remove('open');return;}
+  buildSidx();
+  var words=q.split(/\s+/).filter(function(w){return w.length>1;});
+  if(!words.length){sRes.classList.remove('open');return;}
+  var hits=[];
+  SIDX.forEach(function(e){
+    var sc=e.b,tw=0,okAll=true;
+    for(var i=0;i<words.length;i++){var h=sHit(e,words[i]);if(!h){okAll=false;break;}sc+=h===2?8:2;if(h===2)tw++;}
+    if(okAll)hits.push({e:e,sc:sc,tw:tw});
+  });
+  hits.sort(function(a,b){return b.sc-a.sc;});
+  sList=hits.map(function(h){return h.e;}); sAct=-1;
+  var total=hits.length, rows=hits.slice(0,30), h='';
+  if(!total){h='<div class="snone">Ничего не найдено. Попробуйте: «кфу», «риск», «лидерство», «4.5.10», «выгода».</div>';}
+  rows.forEach(function(hh){
+    var e=hh.e, i=sList.indexOf(e), snip='';
+    if(!hh.tw){var at=-1;for(var wi=0;wi<words.length;wi++){var j=e.hay.indexOf(words[wi]);if(j>=0&&(at<0||j<at))at=j;}
+      if(at>=0)snip='…'+smark(e.hay.slice(Math.max(0,at-32),at+68).trim(),words)+'…';}
+    h+='<div class="srow" data-si="'+i+'" role="option"><span class="sty '+styCls(e)+'" title="'+sesc(e.ty)+'">'+sesc(e.ty)+'</span><div>'+
+       '<span class="st">'+smark(e.t,words)+'</span>'+
+       '<span class="sp">'+sesc(e.path)+'</span>'+
+       (snip?'<span class="ss">'+snip+'</span>':'')+'</div></div>';
+  });
+  h+='<div class="sfoot">'+(total?('Найдено: '+total+(total>30?' · показаны первые 30 — уточните запрос':'')+' · ↑↓ выбор · Enter — перейти · Esc — закрыть'):'')+'</div>';
+  sRes.innerHTML=h; sRes.classList.add('open');
+}
+function sGo(e){
+  sRes.classList.remove('open'); sIn.blur();
+  var cur={sphere:L.sphere,comp:L.comp,scene:L.sceneKind,project:L.project}[L.level];
+  var same=(L.level===e.lv&&(e.arg==null||e.arg===cur));
+  if(!same)setLevel(e.lv,e.arg);
+  setTimeout(function(){pickId(e.oid);},same?40:150);
+}
+function closeSearch(){sRes.classList.remove('open');sAct=-1;}
+sIn.addEventListener('input',runSearch);
+sIn.addEventListener('focus',function(){if(sIn.value.trim().length>=2)runSearch();});
+sIn.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){closeSearch();sIn.blur();e.stopPropagation();return;}
+  if(!sList.length)return;
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    e.preventDefault();
+    sAct=(e.key==='ArrowDown'?sAct+1:sAct-1+sList.length)%Math.min(sList.length,30);
+    sRes.querySelectorAll('.srow').forEach(function(r){r.classList.toggle('act',+r.dataset.si===sAct);});
+    var row=sRes.querySelector('.srow.act'); if(row)row.scrollIntoView({block:'nearest'});
+  }
+  if(e.key==='Enter'){e.preventDefault();var e2=sAct>=0?sList[sAct]:sList[0];if(e2)sGo(e2);}
+});
+sRes.addEventListener('pointerdown',function(e){
+  var r=e.target.closest('.srow'); if(!r)return;
+  e.preventDefault(); sGo(sList[+r.dataset.si]);
+});
+document.addEventListener('click',function(e){ if(!e.target.closest('#swrap'))closeSearch(); });
+addEventListener('keydown',function(e){
+  var tag=(document.activeElement&&document.activeElement.tagName)||'';
+  if((e.key==='/'||e.key==='.')&&tag!=='INPUT'&&tag!=='TEXTAREA'){e.preventDefault();sIn.focus();sIn.select();}
+});
+
+var recallBar=document.getElementById('recallbar');
+L.recall=false; var curTask=null;
+document.getElementById('b-recall').onclick=function(){
+  L.recall=!L.recall; this.classList.toggle('on',L.recall);
+  if(L.recall){newRecallTask();recallBar.classList.add('open');}
+  else{recallBar.classList.remove('open');labels.forEach(function(l){l.el.innerHTML=l.base+(l.sub?'<small>'+l.sub+'</small>':'');l.el.classList.remove('recall');l.ew=0;});}
+};
+/* ============ подписи: показ/скрытие и размер шрифта ============ */
+var bLabels=document.getElementById('b-labels'), fsVal=document.getElementById('fsval');
+function applyLbls(){
+  document.documentElement.style.setProperty('--lfs',(saved.lfs||11)+'px');
+  fsVal.textContent=saved.lfs||11;
+  bLabels.classList.toggle('on',!!saved.hideLbl);
+  bLabels.textContent=saved.hideLbl?'Показать надписи':'Скрыть надписи';
+  labels.forEach(function(l){l.ew=0;}); /* пересчитать размеры для разрешения наложений */
+}
+bLabels.onclick=function(){saved.hideLbl=!saved.hideLbl;applyLbls();persist();};
+document.getElementById('b-fs-dn').onclick=function(){saved.lfs=Math.max(8,(saved.lfs||11)-1);applyLbls();persist();};
+document.getElementById('b-fs-up').onclick=function(){saved.lfs=Math.min(20,(saved.lfs||11)+1);applyLbls();persist();};
+applyLbls();
+
+function recallTasks(){
+  var t=[];
+  if(L.level==='icb'){
+    t.push({q:'Найдите область «Управление проектами» — активную',id:'dom-pm'});
+    t.push({q:'Найдите призрачную область «Управление программами»',id:'dom-prog'});
+    t.push({q:'Найдите призрачную область «Управление портфелями»',id:'dom-port'});
+    t.push({q:'Найдите центральный объект — сам стандарт',id:'icb-root'});
+  } else if(L.level==='universe'){
+    t.push({q:'Найдите область «Управление проектами» — центр системы',id:'dom-pm'});
+    t.push({q:'Найдите спутник-словарь «Основы ICB»',id:'basics'});
+    Object.keys(SPH).forEach(function(k){t.push({q:'Найдите сферу «'+SPH[k].name+'» (код '+SPH[k].code+')',id:'sph-'+k});});
+    COMPS.filter(function(c){return DET[c[0]];}).forEach(function(c){t.push({q:'Найдите компетентность '+c[0]+' «'+c[1]+'»',id:'comp-'+c[0]});});
+  } else if(L.level==='basics'){
+    CONCEPTS.forEach(function(cn,ci){t.push({q:'Найдите понятие «'+cn[0]+'»',id:'concept-'+ci});});
+  } else if(L.level==='sphere'){
+    COMPS.filter(function(c){return c[2]===L.sphere&&DET[c[0]];}).forEach(function(c){t.push({q:'Найдите '+c[0]+' «'+c[1]+'»',id:'comp-'+c[0]});});
+  } else if(L.level==='comp'&&DET[L.comp]){
+    DET[L.comp].kpis.forEach(function(k){t.push({q:'Найдите показатель '+k.code+' — «'+k.name.slice(0,48)+'…»',id:'kpi-'+k.code});});
+    t.push({q:'Где кластер «Знания»?',id:'kn-0'});t.push({q:'Где кластер «Умения и навыки»?',id:'sk-0'});
+  } else if(L.level==='scene'||L.level==='pgalaxy'||L.level==='project'){
+    Object.keys(infoReg).forEach(function(id){ if(infoReg[id].title)t.push({q:'Найдите объект: «'+infoReg[id].title+'»',id:id}); });
+  }
+  return t;
+}
+function newRecallTask(){
+  if(!L.recall)return;
+  labels.forEach(function(l){l.el.innerHTML='?';l.el.classList.add('recall');l.el.classList.remove('hot');l.ew=0;});
+  var t=recallTasks().filter(function(x){return !saved.recall[x.id];});
+  if(!t.length){recallTasks().forEach(function(x){delete saved.recall[x.id];});t=recallTasks();persist();}
+  curTask=t[Math.floor(Math.random()*t.length)]||null;
+  if(curTask)recallBar.querySelector('.q').innerHTML='<b>Проверка памяти:</b> '+curTask.q;
+  recallBar.querySelector('.fb').textContent='';
+}
+function recallAnswer(id){
+  if(!curTask){L.recall=false;pickId(id);return;}
+  var fb=recallBar.querySelector('.fb');
+  if(id===curTask.id){
+    saved.recall[id]=1;persist();fb.className='fb ok';fb.textContent='Верно! Это «'+(infoReg[id]?infoReg[id].title:id)+'»';
+    labels.forEach(function(l){if(l.id===id){l.el.innerHTML=l.base+(l.sub?'<small>'+l.sub+'</small>':'');l.el.classList.remove('recall');l.el.classList.add('hot');l.ew=0;}});
+    setTimeout(newRecallTask,1600);
+  } else {
+    fb.className='fb bad';
+    fb.textContent='Нет — это «'+(infoReg[id]?infoReg[id].title:id)+'». Попробуйте ещё.';
+  }
+}
+
+/* ============ подписи: проекция ============ */
+var v3=new THREE.Vector3();
+function updateLabels(){
+  if(saved.hideLbl){labels.forEach(function(l){l.el.style.display='none';});return;}
+  var w=innerWidth,h=innerHeight,cand=[];
+  labels.forEach(function(l){
+    var p=l.get(); v3.copy(p).project(camera);
+    var behind=v3.z>1||v3.z<-1;
+    var sx=(v3.x*.5+.5)*w, sy=(-v3.y*.5+.5)*h;
+    var dist=camera.position.distanceTo(p);
+    var vis=!behind&&sx>-80&&sx<w+80&&sy>-60&&sy<h+60&&dist<rig.dist*3;
+    if(vis&&l.maxDist&&dist>l.maxDist)vis=false;
+    if(l.pgLayerHide)vis=false;
+    if(vis&&l.occl){ /* скрыть подписи узлов на дальней полусфере */
+      var c=l.occl;
+      if((p.x-c.x)*(camera.position.x-c.x)+(p.y-c.y)*(camera.position.y-c.y)+(p.z-c.z)*(camera.position.z-c.z)<0)vis=false;
+    }
+    if(vis)cand.push({l:l,sx:sx,sy:sy,dist:dist});
+    else l.el.style.display='none';
+  });
+  /* разрешение наложений: важные и ближние подписи остаются, перекрытые прячутся */
+  cand.sort(function(a,b){return (a.l.prio-b.l.prio)||(a.dist-b.dist);});
+  var kept=[];
+  cand.forEach(function(c){
+    var el=c.l.el;
+    if(!c.l.ew){el.style.display='block';c.l.ew=el.offsetWidth||60;c.l.eh=el.offsetHeight||20;}
+    var x1=c.sx-c.l.ew/2-3, x2=c.sx+c.l.ew/2+3, y1=c.sy-c.l.eh*1.2-3, y2=c.sy-c.l.eh*0.2+3;
+    for(var i=0;i<kept.length;i++){var k=kept[i];
+      if(x1<k.x2&&x2>k.x1&&y1<k.y2&&y2>k.y1){el.style.display='none';return;}}
+    kept.push({x1:x1,x2:x2,y1:y1,y2:y2});
+    el.style.display='block'; el.style.left=c.sx+'px'; el.style.top=c.sy+'px';
+  });
+}
+
+/* ============ анимация ============ */
+var clock=new THREE.Clock();
+function animate(){
+  requestAnimationFrame(animate);
+  var t=clock.getElapsedTime();
+  camStep();
+  if(sphGrps.context){ /* общий вид: сферы движутся по орбитам вокруг центра */
+    Object.keys(ORBITS).forEach(function(sk){
+      if(sphGrps[sk])sphOrbitPos(sk,ORBITS[sk].ph+(RM?0:t*ORBITS[sk].spd),sphGrps[sk].position);
+    });
+    if(sunGrp&&!RM)sunGrp.rotation.y+=.0008;
+  }
+  /* живые концы связей следуют за движущимися объектами */
+  links.forEach(function(l){
+    if(!l.fa&&!l.fb)return;
+    var a=l.fa?l.fa():l.a,b=l.fb?l.fb():l.b;
+    var pos=l.line.geometry.attributes.position;
+    pos.setXYZ(0,a.x,a.y,a.z);pos.setXYZ(1,b.x,b.y,b.z);pos.needsUpdate=true;
+    if(l.line.computeLineDistances)l.line.computeLineDistances();
+  });
+  if(!RM){
+    pickables.forEach(function(m){ if(m.userData.spin){m.rotation.y+=.004;m.rotation.x+=.0015;} });
+  }
+  updateLabels();
+  renderer.render(scene,camera);
+}
+function resize(){
+  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+}
+addEventListener('resize',resize);resize();
+
+/* ============ обучение, покрытие ============ */
+/* легенда фигур: SVG-пиктограмма → смысл */
+var SHKEY=[
+ ['Вселенная и галактики',[
+  ['<circle cx="14" cy="14" r="10.5" fill="rgba(127,212,200,.07)" stroke="#7fd4c8" stroke-opacity=".55" stroke-dasharray="3 2.4"/><ellipse cx="14" cy="14" rx="10.5" ry="3.4" fill="none" stroke="#7fd4c8" stroke-opacity=".3"/>','Полупрозрачная сфера','сфера компетентности / галактика · цвет = Контекст, Люди, Практика или Учебные проекты'],
+  ['<circle cx="14" cy="14" r="7" fill="#7fd4c8"/><circle cx="11.6" cy="11.6" r="2.4" fill="rgba(255,255,255,.55)"/>','Шар','элемент компетентности — размер ∝ количеству КПК внутри · в галактике — планета проекта (размер ≈ бюджет)'],
+  ['<circle cx="14" cy="14" r="5" fill="#7fd4c8"/><ellipse cx="14" cy="14" rx="12.5" ry="4.6" fill="none" stroke="#7fd4c8" stroke-width="1.6"/>','Шар с кольцом','у элемента — есть интерактивная сцена · у планеты — приёмка по 44-ФЗ'],
+  ['<path d="M14 4 L22 14 L14 24 L6 14 Z" fill="none" stroke="#9fb8cc" stroke-opacity=".5" stroke-dasharray="3 2.4"/><path d="M6 14 L22 14 M14 4 L14 24" stroke="#9fb8cc" stroke-opacity=".3"/>','Призрачный октаэдр','элемент вне области управления проектами (4.5.14 — не применим)'],
+  ['<path d="M14 4 L22 14 L14 24 L6 14 Z" fill="rgba(159,184,204,.2)" stroke="#9fb8cc"/><path d="M6 14 L22 14 M14 4 L14 24" stroke="#9fb8cc" stroke-opacity=".6"/>','Октаэдр','базовое понятие ICB · в проекте розовый = КФУ, яркий = выгода / ценность'],
+  ['<path d="M14 3 L24 9.5 L24 19 L14 25 L4 19 L4 9.5 Z" fill="rgba(255,217,163,.3)" stroke="#ffd9a3"/><path d="M14 3 L14 25 M4 9.5 L24 19 M24 9.5 L4 19" stroke="#ffd9a3" stroke-opacity=".45"/>','Икосаэдр','область управления (domain) · золотой в центре — «Управление проектами», серые — программы и портфели'],
+  ['<ellipse cx="14" cy="14" rx="11.5" ry="4.2" fill="none" stroke="#93a7b8" stroke-opacity=".7"/><circle cx="25.2" cy="14.5" r="3" fill="#7fd4c8"/>','Кольцо-орбита','траектория сфер, спутника «Основы ICB» и галактики проектов вокруг области в центре']]],
+ ['Внутри элемента компетентности',[
+  ['<path d="M14 4 L23 9 L23 19 L14 24 L5 19 L5 9 Z" fill="rgba(201,184,255,.25)" stroke="#c9b8ff"/><path d="M5 9 L14 14 L23 9 M14 14 L14 24" fill="none" stroke="#c9b8ff"/>','Куб','ключевой показатель компетентности (КПК) — клик открывает критерии'],
+  ['<path d="M14 5 L22.5 10 L22.5 18 L14 23 L5.5 18 L5.5 10 Z" fill="rgba(159,184,204,.15)" stroke="#9fb8cc"/><path d="M14 5 L14 23 M5.5 10 L22.5 18 M22.5 10 L5.5 18" stroke="#9fb8cc" stroke-opacity=".45"/>','Гранёный шарик','позиция из перечня «Знания» или «Умения и навыки»'],
+  ['<ellipse cx="14" cy="14" rx="11" ry="6" fill="none" stroke="#c9b8ff" stroke-width="4" stroke-opacity=".3"/><ellipse cx="14" cy="14" rx="11" ry="6" fill="none" stroke="#c9b8ff"/>','Тор (бублик)','«использование результата» — звено между продуктом и выгодой'],
+  ['<path d="M6 22 V10 M12 22 V14 M18 22 V17" stroke="#ffe08a" stroke-width="3.6"/><path d="M24 22 V19" stroke="#93a7b8" stroke-width="3.6"/>','Столбики','шкалы показателей: КПЭ в «Стратегии» · значения прогресса'],
+  ['<path d="M6 23 C11 21 15 15 19 6" fill="none" stroke="#c9b8ff" stroke-width="2.4"/><path d="M19 6 L15.5 9.5 M19 6 L22.5 9" stroke="#c9b8ff" stroke-width="2.4" fill="none"/>','Луч со стрелкой','общее направление · также нос «корабля» = движущийся проект'],
+  ['<path d="M5 20 A9.5 9.5 0 0 1 23 20" fill="none" stroke="#fbbf24" stroke-width="4"/><path d="M23 20 L21 16 M23 20 L19 21.5" stroke="#fbbf24" fill="none"/>','Дуга кольца','шаг цикла Деминга: план → выполнение → мониторинг → корректировка'],
+  ['<path d="M4 19 C10 19 12 9 24 9" fill="none" stroke="#7fd4c8" stroke-width="2.6" stroke-linecap="round"/><path d="M4 21 C11 21 14 15 24 14" fill="none" stroke="#fbbf24" stroke-width="2.6" stroke-dasharray="3.6 3" stroke-linecap="round"/>','Линии-трубы','траектории: сплошная — план/факт · пунктир — прогноз или «связано с»']]],
+ ['Внутри проекта (Учебные проекты)',[
+  ['<circle cx="14" cy="14" r="6" fill="#93a7b8"/><circle cx="22" cy="8" r="4" fill="#e8f6ff"/>','Шары оси','потребность (серый) и цель (светлый) — начало причинной цепочки'],
+  ['<path d="M14 5 L23 10 L23 19 L14 24 L5 19 L5 10 Z" fill="rgba(127,212,200,.3)" stroke="#7fd4c8"/><path d="M5 10 L14 15 L23 10 M14 15 L14 24" fill="none" stroke="#7fd4c8"/>','Куб на оси','результат проекта — то, что обязаны поставить (deliverable)'],
+  ['<circle cx="14" cy="14" r="10" fill="none" stroke="#7fd4c8" stroke-opacity=".55" stroke-dasharray="3 2.4"/><circle cx="14" cy="14" r="3" fill="#7fd4c8"/><circle cx="21" cy="7" r="2.4" fill="none" stroke="#93a7b8" stroke-dasharray="2 1.6"/>','Граница проекта','прозрачная оболочка: внутри — зона поставки PM, снаружи — мир заказчика'],
+  ['<path d="M14 5 L22 14 L14 23 L6 14 Z" fill="rgba(244,114,182,.3)" stroke="#f472b6"/><path d="M6 14 L22 14 M14 5 L14 23" stroke="#f472b6" stroke-opacity=".55"/>','Розовый октаэдр','КФУ — условие успеха · часто вне прямого контроля PM'],
+  ['<path d="M14 4 L20 19 L8 19 Z" fill="rgba(159,216,255,.35)" stroke="#9fd8ff"/>','Конус','критерий успеха — признак, по которому узел признают успешным'],
+  ['<ellipse cx="14" cy="8" rx="6" ry="2.6" fill="rgba(127,227,160,.35)" stroke="#7fe3a0"/><path d="M8 8 L8 19 A6 2.6 0 0 0 20 19 L20 8" fill="rgba(127,227,160,.18)" stroke="#7fe3a0"/><path d="M14 14 L17.5 10" stroke="#eaf6ff" stroke-width="1.8"/>','Цилиндр-измеритель','KPI / метрика — «чем измеряем» конкретный узел'],
+  ['<path d="M5 11 L23 11 L23 17 L5 17 Z" fill="rgba(127,212,200,.2)" stroke="#7fd4c8"/><path d="M23 11 L25.5 9.5 M23 17 L25.5 15.5" stroke="#7fd4c8" stroke-opacity=".5"/>','Тонкая панель','требование к результату — функциональное или нефункциональное'],
+  ['<path d="M14 4 L24 20 L4 20 Z" fill="rgba(248,113,113,.3)" stroke="#f87171"/><path d="M14 4 L14 14 M14 14 L4 20 M14 14 L24 20" stroke="#f87171" stroke-opacity=".6"/>','Тетраэдр (пирамида)','риск — вращается, линии показывают, чему угрожает'],
+  ['<path d="M6 12 L20 12 L20 16 L6 16 Z" fill="rgba(148,163,184,.3)" stroke="#94a3b8"/><circle cx="22.5" cy="20" r="3" fill="none" stroke="#8aa0b8" stroke-dasharray="2 1.8"/>','Брус / куб / шар серые','ограничение · зависимость · допущение — поле условий вокруг проекта'],
+  ['<circle cx="14" cy="7" r="3.4" fill="#cbd5e1"/><path d="M8.5 23 C8.5 15 19.5 15 19.5 23 Z" fill="#cbd5e1"/>','Фигурка человека','владелец сущности · в сценах — лидер и члены команды']]]
+];
+(function(){
+  var kb=document.getElementById('keybtn'),sk=document.getElementById('shapekey');
+  var h='<h3>Что означают фигуры</h3>';
+  SHKEY.forEach(function(sec){
+    h+='<h4>'+sec[0]+'</h4>';
+    sec[1].forEach(function(it){
+      h+='<div class="ski"><svg viewBox="0 0 28 28">'+it[0]+'</svg><span>'+it[1]+'<span class="d">'+it[2]+'</span></span></div>';
+    });
+  });
+  sk.innerHTML=h;
+  function close(){sk.classList.remove('open');kb.classList.remove('on');}
+  kb.onclick=function(){var o=sk.classList.toggle('open');kb.classList.toggle('on',o);};
+  document.addEventListener('click',function(e){
+    if(!sk.classList.contains('open'))return;
+    if(!sk.contains(e.target)&&e.target!==kb)close();
+  });
+})();
+function closeTutor(){document.getElementById('tutor').classList.remove('open');saved.tut=1;persist();}
+document.getElementById('b-help').onclick=function(){document.getElementById('tutor').classList.add('open');};
+document.getElementById('tutor-go').onclick=closeTutor;
+document.getElementById('tutor').addEventListener('click',function(e){ if(e.target===this)closeTutor(); });
+document.getElementById('b-cov').onclick=function(){document.getElementById('cov').classList.toggle('open');};
+
+/* ============ режим «Структура ICB»: цепочка иерархии и текущий путь ============ */
+var structEl=document.getElementById('struct');
+function structSteps(){
+  var s=[
+    {k:'ICB 4.0',n:'стандарт IPMA',d:'Три области × три сферы = 29 элементов. Проекты: 28.',go:'icb'},
+    {k:'ОБЛАСТЬ · DOMAIN',n:'Управление проектами',d:'Ось «чем управляем»: проекты, программы или портфели.',go:'universe'},
+    {k:'СФЕРА · AREA',n:'Контекст · Люди · Практика',d:'Ось «какой тип компетентности»: Perspective, People, Practice.',go:'sphere'},
+    {k:'ЭЛЕМЕНТ',n:'напр., 4.3.1 Стратегия',d:'Конкретная компетентность внутри сферы.',go:'comp'},
+    {k:'КПК · KCI',n:'напр., 4.3.1.2',d:'Ключевой показатель — по нему элемент проверяется.'},
+    {k:'КРИТЕРИИ',n:'внутри каждого КПК',d:'Формулировки «Measure …» для оценки.'},
+    {k:'ЗНАНИЯ / НАВЫКИ',n:'перечни элемента',d:'Что нужно знать и уметь, чтобы элемент работал.'}
+  ];
+  if(L.sphere){s[2].n=SPH[L.sphere].name+' · '+SPH[L.sphere].code;s[2].lv='sphere';s[2].lvarg=L.sphere;}
+  if(L.comp){var cn=CD[L.comp];s[3].n=L.comp+' '+cn.name;s[3].lv='comp';s[3].lvarg=L.comp;
+    var dd=DET[L.comp];
+    if(dd){s[4].n=dd.kpis.length+' показателя · '+dd.kpis[0].code+' … '+dd.kpis[dd.kpis.length-1].code;
+      s[5].n='критерии у каждого КПК — всего '+dd.kpis.reduce(function(x,k){return x+k.crit.length;},0);
+      s[6].n=dd.knowledge.length+' знаний · '+dd.skills.length+' навыков';}
+    else s[4].n='подробные КПК элемента пока не заведены';
+  }
+  return s;
+}
+function renderStruct(){
+  if(!structEl.classList.contains('open'))return;
+  var steps=structSteps();
+  var curIdx=(L.level==='icb')?0:(L.level==='universe'||L.level==='basics'||L.level==='pgalaxy'||L.level==='project')?1:(L.level==='sphere')?2:3;
+  var rel=['содержит области','использует сферы','содержит элементы','проверяется показателями','оцениваются критериями','требует знаний и навыков'];
+  var h='<h3>СТРУКТУРА ICB 4.0</h3><div class="snote">Иерархия стандарта. Клик по строке ведёт на уровень. Выделенная рамка — где вы сейчас.</div>';
+  steps.forEach(function(st,i){
+    if(i)h+='<div class="starrow">↓ <span>'+rel[i-1]+'</span></div>';
+    var go=st.go?' data-stgo="'+st.go+'"'+((st.lv&&st.lvarg)?' data-stlv="'+st.lv+'" data-starg="'+st.lvarg+'"':''):'';
+    h+='<div class="strow'+(i===curIdx?' cur':'')+'"'+go+'><span class="stt">'+st.k+'</span><b>'+st.n+'</b><i>'+st.d+'</i></div>';
+  });
+  var path='<b>ICB 4.0</b> → Управление проектами'+(L.sphere?' → '+SPH[L.sphere].name:' → сфера …')+(L.comp?' → '+L.comp+' «'+CD[L.comp].name+'»':' → элемент …')+(L.comp&&DET[L.comp]?' → '+DET[L.comp].kpis[0].code+'… → критерии, знания, навыки':' → КПК …');
+  h+='<div class="stpath"><div class="pt">ВАШ ПУТЬ:<br>'+path+'</div></div>';
+  structEl.innerHTML=h;
+  structEl.querySelectorAll('[data-stgo]').forEach(function(el){
+    el.onclick=function(){
+      var g=el.dataset.stgo;
+      if(el.dataset.stlv){setLevel(el.dataset.stlv,el.dataset.starg);return;}
+      if(g==='icb')setLevel('icb');
+      else if(g==='universe')setLevel('universe');
+      else if(g==='sphere')setLevel('sphere',L.sphere||'context');
+      else if(g==='comp')setLevel('comp',L.comp||'4.3.1');
+    };
+  });
+}
+document.getElementById('b-struct').onclick=function(){structEl.classList.toggle('open');renderStruct();};
+
+/* карта покрытия источника — генерируется из данных */
+(function(){
+  var h='<b>КАРТА ПОКРЫТИЯ · ICB 4.0 PDF</b><br>';
+  h+='§ 2.1 Компетентность — с. 19–20 · созвездие<br>';
+  h+='§ 2.3 Совершенствование — с. 22–26 · созвездие<br>';
+  h+='§ 3.1–3.3 Понятия и «Глаз» — с. 29–36 · созвездие<br>';
+  h+='§ 4.1–4.2 Проекты и обзор — с. 40–41<br><br>';
+  COMPS.forEach(function(c){
+    var s=SPH[c[2]], col='#'+('000000'+s.col.toString(16)).slice(-6);
+    var st=c[4]==='na'?'не применимо к проектам (Том 2/3)':(DET[c[0]]&&DET[c[0]].scene?'сцена + показатели':'показатели · критерии · знания · навыки');
+    h+='<span style="color:'+col+'">'+c[0]+'</span> '+c[1]+' — '+(c[3]==='—'?'с. 36':('с. '+c[3]))+' · '+st+'<br>';
+  });
+  var nk=0; Object.keys(DET).forEach(function(k){nk+=DET[k].kpis.length;});
+  h+='<br><b>ПОКРЫТО:</b> § 2–3 (понятия) + 28 элементов § 4.3–4.5,<br>всего '+nk+' ключевых показателей с критериями';
+  if(window.PGX)h+=PGX.covBlock();
+  document.getElementById('cov').innerHTML=h;
+})();
+if(!saved.tut&&(location.hash||'').indexOf('notut')<0)document.getElementById('tutor').classList.add('open');
+
+/* восстановление позиции · deep-link: #lvl=icb|universe|basics|sphere:context|comp:4.3.1 */
+var hp=(location.hash||'').match(/lvl=([a-z]+)(?::([0-9.]+))?/), p=saved.pos;
+if(hp){
+  var hv=hp[1],ha=hp[2];
+  if(hv==='universe'||hv==='icb'||hv==='basics'||hv==='pgalaxy')setLevel(hv);
+  else if(hv==='sphere')setLevel('sphere',ha||'context');
+  else if(hv==='comp')setLevel('comp',ha||'4.3.1');
+  else setLevel('icb');
+}
+else if(p&&p.k){setLevel('comp',p.c);setLevel('scene',p.k);}
+else if(p&&p.pr){if(p.pr==='*')setLevel('pgalaxy');else setLevel('project',p.pr);}
+else if(p&&p.c){setLevel('comp',p.c);}
+else if(p&&p.s){setLevel('sphere',p.s);}
+else if(p&&(p.l==='basics'||p.l==='universe'||p.l==='icb'))setLevel(p.l);
+else setLevel('icb');
+if((location.hash||'').indexOf('struct')>=0){structEl.classList.add('open');renderStruct();}
+animate();
+})();
+</script>
+</body>
+</html>
