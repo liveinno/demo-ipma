@@ -29,21 +29,33 @@ CSP = (
 EMBED_STYLE = """<style>
   #tutor .card{max-height:calc(100dvh - 40px);overflow-y:auto}
   #legend,#panel,#scenebar,#projbar{bottom:66px}
-  @media(max-width:1600px){
-    header{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+  header{display:grid;grid-template-columns:minmax(230px,1fr) 190px auto;gap:10px}
+  .brandcol{min-width:0;max-width:none}
+  .brand small{overflow:hidden;text-overflow:ellipsis}
+  .hbtns{min-width:0;max-width:100%;overflow-x:auto}
+  #swrap{width:190px;min-width:0}
+  #srchin{width:100%}
+  @media(max-width:1199px){
+    header{grid-template-columns:minmax(0,1fr) minmax(140px,220px);gap:6px}
+    .hbtns{grid-column:1/-1}
     .brandcol{max-width:none;min-width:0}
     .hbtns{min-width:0;max-width:100%;overflow-x:auto;padding-bottom:4px}
     .hbtns>*{flex-shrink:0}
     #swrap{position:relative;top:auto;left:auto;right:auto;width:100%;max-width:none}
     #srchin{width:100%}
-    #sres{top:112px;max-height:55vh}
-    #struct{top:174px;left:8px;bottom:8px;width:calc(100% - 16px)}
-    #panel{top:174px;max-height:calc(100dvh - 240px)}
-    #recallbar{top:174px}
+    #sres{top:100%;max-height:55vh}
+    #struct{top:130px;left:8px;bottom:8px;width:calc(100% - 16px)}
+    #panel{top:130px;max-height:calc(100dvh - 196px)}
+    #recallbar{top:130px}
     #tutor{padding:12px}
     #tutor .card{padding:20px;max-height:calc(100dvh - 24px)}
   }
-  @media(max-width:760px){#panel{top:auto;max-height:56dvh}}
+  @media(max-width:760px){
+    header{grid-template-columns:minmax(0,1fr)}
+    #panel{top:auto;max-height:56dvh}
+    #sres{top:112px}
+    #struct,#recallbar{top:174px}
+  }
 </style>"""
 
 
