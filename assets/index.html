@@ -1100,7 +1100,7 @@ function compInfo(c){
     what:d.def,does:d.does,example:d.example,mistake:d.mistake,
     src:'ICB 4.0, § '+c.code+', с. '+c.page,
     rel:d.related.map(function(r){return r[0];}),
-    enter:d.scene?'Исследовать сцену «'+c.name+'»':'Погрузиться в компетентность →',extra:d};
+    enter:d.scene?'Исследовать сцену «'+c.name+'»':'Погрузиться в компетентность →'};
 }
 
 function buildSphere(sk){
@@ -1650,7 +1650,8 @@ function showInfo(id,inf){
   if(window.PGX&&id.indexOf('comp-')===0)h+=PGX.icbBlock(id.slice(5));
   if(window.VIZLAYER)h+=VIZLAYER.render(id,inf,{DET:DET,CD:CD,SPH:SPH,comp:L.comp});
   if(window.VIZLAYER&&VIZLAYER.examples)h+=VIZLAYER.examples(id,inf,{DET:DET,CD:CD,SPH:SPH,comp:L.comp});
-  if(inf.extra)h+=inf.extra;
+  // Only pre-rendered HTML belongs here; competency data objects are not markup.
+  if(typeof inf.extra==='string')h+=inf.extra;
   h+='<div class="src">Источник: '+inf.src+'</div>';
   var dive=null;
   if(id==='dom-pm'&&L.level==='icb')dive={t:'Открыть область «Управление проектами» →',fn:function(){setLevel('universe');}};
